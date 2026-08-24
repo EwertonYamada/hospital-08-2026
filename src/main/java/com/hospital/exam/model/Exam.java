@@ -25,7 +25,7 @@ public class Exam {
     private LocalDateTime date;
 
     @Column(nullable = false)
-    private String nameExame;
+    private String nameExam;
 
     @Enumerated(EnumType.STRING)
     private ExamType examType;

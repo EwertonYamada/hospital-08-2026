@@ -19,7 +19,7 @@ public class ExamRequestDTO {
     private LocalDateTime date;
 
     @NotBlank(message = "Nome do Exame é obrigatório")
-    private String nomeExame;
+    private String nameExam;
 
     @NotNull(message = "Tipo do exame é obrigatório")
     private ExamType examType;

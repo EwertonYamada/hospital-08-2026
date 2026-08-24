@@ -4,22 +4,28 @@ import com.hospital.admission.model.Admission;
 import com.hospital.exam.enums.ExamStatus;
 import com.hospital.exam.enums.ExamType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "exam")
-public class ExamModel {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Exam {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private LocalDateTime data;
+    private LocalDateTime date;
 
     @Column(nullable = false)
-    private String nomeExame;
+    private String nameExame;
 
     @Enumerated(EnumType.STRING)
     private ExamType examType;

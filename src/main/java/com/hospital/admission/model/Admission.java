@@ -3,12 +3,14 @@ package com.hospital.admission.model;
 import com.hospital.admission.enums.AdmissionStatus;
 import com.hospital.bed.model.Bed;
 import com.hospital.admission.enums.EventType;
+import com.hospital.exam.model.Exam;
 import com.hospital.patient.model.Patient;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -26,6 +28,9 @@ public class Admission {
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;
+
+    @OneToMany(mappedBy = "livro")
+    private List<Exam> exams;
 
     @Column(name = "admitted_at")
     private Date admittedAt;

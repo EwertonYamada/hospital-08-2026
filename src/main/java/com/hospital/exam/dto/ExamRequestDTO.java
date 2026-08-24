@@ -2,6 +2,7 @@ package com.hospital.exam.dto;
 
 import com.hospital.admission.model.Admission;
 import com.hospital.exam.enums.ExamType;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 public class ExamRequestDTO {
 
     @NotNull(message = "Data do exame é obrigatório")
+    @Future(message = "Data do exame deve ser no futuro")
     private LocalDateTime date;
 
     @NotBlank(message = "Nome do Exame é obrigatório")

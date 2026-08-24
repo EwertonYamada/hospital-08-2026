@@ -25,4 +25,9 @@ public class AdmissionController {
     public ResponseEntity<Admission> discharge(@PathVariable Long admissionId) {
         return ResponseEntity.ok(this.admissionService.discharge(admissionId));
     }
+
+    @PostMapping("/{admissionId}/doctors/{doctorsId}")
+    public ResponseEntity<Admission> vincularMedico(@PathVariable Long admissionId, @PathVariable Long doctorsId) {
+        return ResponseEntity.ok(this.admissionService.vincularMedico(admissionId, doctorsId));
+    }
 }

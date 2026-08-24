@@ -3,12 +3,15 @@ package com.hospital.admission.model;
 import com.hospital.admission.enums.AdmissionStatus;
 import com.hospital.bed.model.Bed;
 import com.hospital.admission.enums.EventType;
+import com.hospital.doctor.model.Doctor;
 import com.hospital.patient.model.Patient;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -36,6 +39,10 @@ public class Admission {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private AdmissionStatus status;
+
+    @ManyToMany
+    @JoinTable(name = "admission_doctors", joinColumns = @JoinColumn(name = "admission_id"), inverseJoinColumns = @JoinColumn(name = "doctor_id"))
+    private List<Doctor> doctors = new ArrayList<>();
 
     public Admission(Bed bed, Patient patient) {
         this.bed = bed;

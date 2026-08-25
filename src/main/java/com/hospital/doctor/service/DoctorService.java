@@ -7,6 +7,8 @@ import com.hospital.utils.exceptions.AlreadyExistingEntityException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DoctorService {
 
@@ -30,5 +32,9 @@ public class DoctorService {
     public Doctor getById(Long doctorId){
 
       return doctorRepository.findById(doctorId).orElseThrow(() -> new EntityNotFoundException("id nao encontrado"));
+    }
+
+    public List<Doctor> findAll(){
+        return doctorRepository.findAll();
     }
 }

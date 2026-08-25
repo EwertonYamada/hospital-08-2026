@@ -1,6 +1,8 @@
 package com.hospital.admission.service;
 
+import com.hospital.admission.dto.BedTransferRequest;
 import com.hospital.admission.enums.AdmissionStatus;
+import com.hospital.bed.dto.BedRequest;
 import com.hospital.bed.enums.BedStatus;
 import com.hospital.bed.model.Bed;
 import com.hospital.bed.service.BedService;
@@ -11,6 +13,7 @@ import com.hospital.doctor.model.Doctor;
 import com.hospital.doctor.service.DoctorService;
 import com.hospital.patient.model.Patient;
 import com.hospital.patient.service.PatientService;
+import com.hospital.ward.enums.Specialty;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,5 +98,45 @@ public class AdmissionService {
             this.admissionRepository.save(admission);
         }
         return  admission;
+    }
+
+    @Transactional
+    public Admission transferirLeito(Long admissionId, BedTransferRequest request) {
+        Admission oldAdmission = this.getById(admissionId);
+
+        if (!oldAdmission.getStatus().equals(AdmissionStatus.ACTIVE)) {
+            throw new RuntimeException("Internacao inativa");
+        }
+
+        Bed newBed = this.bedService.getAvailableBedById(request.newBedId());
+
+        Specialty oldSpecialty = oldAdmission.getBed().getRoom().getWard().getSpecialty();
+        Specialty newSpecialty = newBed.getRoom().getWard().getSpecialty();
+
+        Doctor doctor = null;
+        if (!oldSpecialty.equals(newSpecialty)) {
+            if (request.doctorId() == null) {
+                throw new RuntimeException("Medico obrigatorio para trocar de especialidade");
+            }
+            doctor = this.doctorService.getById(request.doctorId());
+            if (!doctor.getSpecialty().equals(newSpecialty)) {
+                throw new RuntimeException("Medico nao e da especialidade da nova ala");
+            }
+        }
+
+        this.updateBed(oldAdmission.getBed(), BedStatus.IN_PREPARATION);
+
+        oldAdmission.setDischargedAt(new Date());
+        oldAdmission.setStatus(AdmissionStatus.INACTIVE);
+        this.admissionRepository.save(oldAdmission);
+
+        Admission newAdmission = new Admission(newBed, oldAdmission.getPatient());
+        if (doctor != null) {
+            newAdmission.getDoctors().add(doctor);
+        }
+        this.admissionRepository.save(newAdmission);
+        this.updateBed(newBed, BedStatus.OCCUPIED);
+
+        return newAdmission;
     }
 }

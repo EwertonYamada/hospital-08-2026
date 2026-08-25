@@ -1,8 +1,10 @@
 package com.hospital.admission.controller;
 
 import com.hospital.admission.dto.AdmissionRequest;
+import com.hospital.admission.dto.BedTransferRequest;
 import com.hospital.admission.model.Admission;
 import com.hospital.admission.service.AdmissionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,5 +31,10 @@ public class AdmissionController {
     @PostMapping("/{admissionId}/doctors/{doctorsId}")
     public ResponseEntity<Admission> vincularMedico(@PathVariable Long admissionId, @PathVariable Long doctorsId) {
         return ResponseEntity.ok(this.admissionService.vincularMedico(admissionId, doctorsId));
+    }
+
+    @PostMapping("/{admissionId}/transfer")
+    public ResponseEntity<Admission> transferirLeito(@PathVariable Long admissionId, @RequestBody BedTransferRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.admissionService.transferirLeito(admissionId, request));
     }
 }

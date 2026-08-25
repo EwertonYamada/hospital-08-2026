@@ -3,12 +3,14 @@ package com.hospital.admission.model;
 import com.hospital.admission.enums.AdmissionStatus;
 import com.hospital.bed.model.Bed;
 import com.hospital.admission.enums.EventType;
+import com.hospital.logVisits.model.LogVisits;
 import com.hospital.patient.model.Patient;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -36,6 +38,9 @@ public class Admission {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private AdmissionStatus status;
+
+    @OneToMany(mappedBy = "livro")
+    private List<LogVisits> logVisits;
 
     public Admission(Bed bed, Patient patient) {
         this.bed = bed;

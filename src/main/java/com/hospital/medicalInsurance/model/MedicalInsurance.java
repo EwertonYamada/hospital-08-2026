@@ -23,5 +23,5 @@ public class MedicalInsurance {
     @Column(nullable = false, unique = true)
     private MedicalInsuranceType type;
     @Column(nullable = false)
-    private float coverageRate;
+    private Float coverageRate;
 }

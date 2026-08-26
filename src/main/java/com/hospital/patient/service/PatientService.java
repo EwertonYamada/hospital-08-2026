@@ -43,4 +43,8 @@ public class PatientService {
         return this.patientRepository.save(patient);
     }
 
+    public boolean existsPatientWithMedicalInsurance(Long medicalInsuranceId) {
+        return patientRepository.existsByMedicalInsurance_Id(medicalInsuranceId);
+    }
+
 }

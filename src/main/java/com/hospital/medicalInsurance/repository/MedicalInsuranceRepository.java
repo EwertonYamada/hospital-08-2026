@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MedicalInsuranceRepository extends JpaRepository<MedicalInsurance, Long> {
     boolean existsByType(MedicalInsuranceType type);
-    boolean existsByTypeAndIdNot(MedicalInsuranceType type);
+    boolean existsByTypeAndIdNot(Long id, MedicalInsuranceType type);
 }

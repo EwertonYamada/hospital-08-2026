@@ -33,10 +33,10 @@ public class DailyController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Daily> deletar(@PathVariable Long id){
+    public ResponseEntity<Void> deletar(@PathVariable Long id){
 
         this.dailyService.deletar(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping

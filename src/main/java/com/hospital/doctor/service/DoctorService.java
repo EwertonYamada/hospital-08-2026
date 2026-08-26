@@ -19,9 +19,7 @@ public class DoctorService {
     }
     public Doctor cadastrar(DoctorRequest doctorRequest){
 
-        if (doctorRepository.existsByCrm(doctorRequest.crm())) {
-            throw new AlreadyExistingEntityException("CRM ja cadastrado");
-        }
+        this.validarCrmDuplicado(doctorRequest.crm());
         Doctor doctor = new Doctor();
         doctor.setName(doctorRequest.name());
         doctor.setCrm(doctorRequest.crm());
@@ -31,10 +29,17 @@ public class DoctorService {
 
     public Doctor getById(Long doctorId){
 
-      return doctorRepository.findById(doctorId).orElseThrow(() -> new EntityNotFoundException("id nao encontrado"));
+      return doctorRepository.findById(doctorId).
+              orElseThrow(() -> new EntityNotFoundException("Medico com o Id " + doctorId+ " Nao encontrado"));
     }
 
     public List<Doctor> findAll(){
         return doctorRepository.findAll();
+    }
+
+    private void validarCrmDuplicado(String crm){
+        if (doctorRepository.existsByCrm(crm)) {
+            throw new AlreadyExistingEntityException("CRM ja cadastrado");
+        }
     }
 }

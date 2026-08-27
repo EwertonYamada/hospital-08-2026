@@ -36,4 +36,10 @@ public class DoctorController {
         List<Doctor> doctors = doctorService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(doctors);
     }
+
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<Doctor> deactivateDoctor(@PathVariable Long id) {
+        Doctor doctor = doctorService.deactivateDoctor(id);
+        return ResponseEntity.status(HttpStatus.OK).body(doctor);
+    }
 }

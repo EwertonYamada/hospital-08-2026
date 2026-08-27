@@ -1,6 +1,7 @@
 package com.hospital.exam.model;
 
 import com.hospital.admission.model.Admission;
+import com.hospital.doctor.model.Doctor;
 import com.hospital.exam.enums.ExamStatus;
 import com.hospital.exam.enums.ExamType;
 import jakarta.persistence.*;

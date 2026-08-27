@@ -3,6 +3,8 @@ package com.hospital.exam.service;
 import com.hospital.admission.enums.AdmissionStatus;
 import com.hospital.admission.model.Admission;
 import com.hospital.admission.service.AdmissionService;
+import com.hospital.doctor.model.Doctor;
+import com.hospital.doctor.service.DoctorService;
 import com.hospital.exam.dto.ExamRequestDTO;
 import com.hospital.exam.dto.ExamResponseDTO;
 import com.hospital.exam.enums.ExamStatus;
@@ -18,19 +20,20 @@ public class ExamService {
 
     private final ExamRepository examRepository;
     private final AdmissionService admissionService;
+    private final DoctorService doctorService;
 
-    public ExamService(ExamRepository examRepository, AdmissionService admissionService) {
+    public ExamService(ExamRepository examRepository, AdmissionService admissionService, DoctorService doctorService) {
         this.examRepository = examRepository;
         this.admissionService = admissionService;
+        this.doctorService = doctorService;
     }
 
     public ExamResponseDTO create(ExamRequestDTO dto) {
         Admission admission = admissionService.getById(dto.getAdmissionId());
+        Doctor doctor = doctorService.getById(dto.getDoctorId());
         admissionService.validateAdmissionIsActive(admission.getStatus());
 
         validatePatientHasNoExamAtDate(admission.getPatient().getId(), dto.getDate());
-
-        // Finalizar validação de Medico dps do PR do Pedro
 
         Exam exam = new Exam();
         exam.setDate(dto.getDate());
@@ -95,8 +98,6 @@ public class ExamService {
         return examRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exame não existe"));
     }
-
-
 
     public ExamResponseDTO toResponseDTO(Exam exam) {
         return new ExamResponseDTO(

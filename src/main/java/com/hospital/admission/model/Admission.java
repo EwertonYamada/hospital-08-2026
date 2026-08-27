@@ -29,7 +29,7 @@ public class Admission {
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
-    @OneToMany(mappedBy = "livro")
+    @OneToMany(mappedBy = "exam")
     private List<Exam> exams;
 
     @Column(name = "admitted_at")

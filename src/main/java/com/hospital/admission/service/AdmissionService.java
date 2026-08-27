@@ -79,4 +79,10 @@ public class AdmissionService {
         if (Objects.nonNull(admission.getDischargedAt()) || AdmissionStatus.INACTIVE.equals(admission.getStatus()))
             throw new RuntimeException("The patient with id " +admission.getPatient().getId() + " has already been discharged.");
     }
+
+    public void validateAdmissionIsActive(AdmissionStatus status) {
+        if (status != AdmissionStatus.ACTIVE) {
+            throw new RuntimeException("Paciente não está hospitalizado");
+        }
+    }
 }

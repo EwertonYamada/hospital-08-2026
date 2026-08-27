@@ -10,6 +10,7 @@ import com.hospital.exam.model.Exam;
 import com.hospital.exam.repository.ExamRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,13 +26,9 @@ public class ExamService {
 
     public ExamResponseDTO create(ExamRequestDTO dto) {
         Admission admission = admissionService.getById(dto.getAdmissionId());
-        if (admission.getStatus() != AdmissionStatus.ACTIVE) {
-            throw new RuntimeException("Pacinte não esta hospitalizado");
-        }
+        admissionService.validateAdmissionIsActive(admission.getStatus());
 
-        if (examRepository.existsByAdmission_Patient_IdAndDate(admission.getPatient().getId(), dto.getDate())) {
-            throw new RuntimeException("Patient já tem um exame nesse horario");
-        }
+        validatePatientHasNoExamAtDate(admission.getPatient().getId(), dto.getDate());
 
         // Finalizar validação de Medico dps do PR do Pedro
 
@@ -49,8 +46,7 @@ public class ExamService {
     }
 
     public ExamResponseDTO findById(Long id) {
-        Exam exam = examRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Exame não existe"));
+        Exam exam = getExamOrThrow(id);
         return toResponseDTO(exam);
     }
 
@@ -63,16 +59,11 @@ public class ExamService {
 
     public ExamResponseDTO update(Long id, ExamRequestDTO dto) {
         Admission admission = admissionService.getById(dto.getAdmissionId());
-        Exam exam = examRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Exame não existe"));
+        Exam exam = getExamOrThrow(id);
 
-        if (admission.getStatus() != AdmissionStatus.ACTIVE) {
-            throw new RuntimeException("Paciente não esta hospitalizado");
-        }
+        admissionService.validateAdmissionIsActive(admission.getStatus());
 
-        if (examRepository.existsByAdmission_Patient_IdAndDateAndIdNot(admission.getPatient().getId(), dto.getDate(), id)) {
-            throw new RuntimeException("Patient já tem um exame nesse horario");
-        }
+        validatePatientHasNoExamAtDate(admission.getPatient().getId(), dto.getDate(), id);
 
         exam.setDate(dto.getDate());
         exam.setNameExam(dto.getNameExam());
@@ -84,9 +75,25 @@ public class ExamService {
     }
 
     public void delete(Long id) {
-        examRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Exame não existe"));
+        Exam exam = getExamOrThrow(id);
         examRepository.deleteById(id);
+    }
+
+    public void validatePatientHasNoExamAtDate(Long patientId, LocalDateTime date) {
+        if (examRepository.existsByAdmission_Patient_IdAndDate(patientId, date)) {
+            throw new RuntimeException("Patient já tem um exame nesse horario");
+        }
+    }
+
+    public void validatePatientHasNoExamAtDate(Long patientId, LocalDateTime date, Long examId) {
+        if (examRepository.existsByAdmission_Patient_IdAndDateAndIdNot(patientId, date, examId)) {
+            throw new RuntimeException("Patient já tem um exame nesse horario");
+        }
+    }
+
+    public Exam getExamOrThrow(Long id) {
+        return examRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Exame não existe"));
     }
 
 

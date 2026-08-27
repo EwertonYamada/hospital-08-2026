@@ -102,4 +102,10 @@ public class AdmissionService {
         }
         return  admission;
     }
+
+    public void validateDoctorIsResponsibleForAdmission(Admission admission, Doctor doctor) {
+        if (!admission.getDoctors().contains(doctor)) {
+            throw new RuntimeException("O médico informado não é responsável por essa internação");
+        }
+    }
 }

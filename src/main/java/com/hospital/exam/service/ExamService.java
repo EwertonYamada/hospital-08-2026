@@ -1,12 +1,12 @@
 package com.hospital.exam.service;
 
-import com.hospital.admission.enums.AdmissionStatus;
 import com.hospital.admission.model.Admission;
 import com.hospital.admission.service.AdmissionService;
 import com.hospital.doctor.model.Doctor;
 import com.hospital.doctor.service.DoctorService;
 import com.hospital.exam.dto.ExamRequestDTO;
 import com.hospital.exam.dto.ExamResponseDTO;
+import com.hospital.exam.dto.ExamUpdateRequestDTO;
 import com.hospital.exam.enums.ExamStatus;
 import com.hospital.exam.model.Exam;
 import com.hospital.exam.repository.ExamRepository;
@@ -35,6 +35,8 @@ public class ExamService {
 
         validatePatientHasNoExamAtDate(admission.getPatient().getId(), dto.getDate());
 
+        admissionService.validateDoctorIsResponsibleForAdmission(admission, doctor);
+
         Exam exam = new Exam();
         exam.setDate(dto.getDate());
         exam.setNameExam(dto.getNameExam());
@@ -60,7 +62,7 @@ public class ExamService {
                 .toList();
     }
 
-    public ExamResponseDTO update(Long id, ExamRequestDTO dto) {
+    public ExamResponseDTO update(Long id, ExamUpdateRequestDTO dto) {
         Admission admission = admissionService.getById(dto.getAdmissionId());
         Exam exam = getExamOrThrow(id);
 

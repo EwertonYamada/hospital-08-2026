@@ -2,6 +2,7 @@ package com.hospital.exam.controller;
 
 import com.hospital.exam.dto.ExamRequestDTO;
 import com.hospital.exam.dto.ExamResponseDTO;
+import com.hospital.exam.dto.ExamUpdateRequestDTO;
 import com.hospital.exam.service.ExamService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,7 @@ public class ExamController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ExamResponseDTO> update(@PathVariable Long id, @RequestBody @Valid ExamRequestDTO dto) {
+    public ResponseEntity<ExamResponseDTO> update(@PathVariable Long id, @RequestBody @Valid ExamUpdateRequestDTO dto) {
         ExamResponseDTO exam = examService.update(id, dto);
         return ResponseEntity.ok(exam);
     }

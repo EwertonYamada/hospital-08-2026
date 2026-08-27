@@ -1,5 +1,6 @@
 package com.hospital.doctor.service;
 
+import com.hospital.admission.service.AdmissionService;
 import com.hospital.doctor.dto.DoctorRequest;
 import com.hospital.doctor.model.Doctor;
 import com.hospital.doctor.repository.DoctorRepository;
@@ -13,9 +14,11 @@ import java.util.List;
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
+    private final AdmissionService admissionService;
 
-    public DoctorService(DoctorRepository doctorRepository) {
+    public DoctorService(DoctorRepository doctorRepository, AdmissionService admissionService) {
         this.doctorRepository = doctorRepository;
+        this.admissionService = admissionService;
     }
     public Doctor cadastrar(DoctorRequest doctorRequest){
 
@@ -42,4 +45,13 @@ public class DoctorService {
             throw new AlreadyExistingEntityException("CRM ja cadastrado");
         }
     }
+
+    public Doctor deactivateDoctor(Long id) {
+        Doctor doctor = getById(id);
+        admissionService.validateDoctorHasNoAdmissionLinked(id);
+        doctor.setActive(false);
+        doctorRepository.save(doctor);
+        return doctorRepository.save(doctor);
+    }
+
 }

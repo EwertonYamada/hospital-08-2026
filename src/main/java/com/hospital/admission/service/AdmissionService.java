@@ -96,4 +96,10 @@ public class AdmissionService {
         }
         return  admission;
     }
+
+    public void validateDoctorHasNoAdmissionLinked(Long doctorId) {
+        if (admissionRepository.existsByDoctors_Id(doctorId)) {
+            throw new RuntimeException("Não é possível desativar: médico já esteve vinculado a uma internação");
+        }
+    }
 }

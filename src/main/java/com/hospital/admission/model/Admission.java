@@ -3,6 +3,7 @@ package com.hospital.admission.model;
 import com.hospital.admission.enums.AdmissionStatus;
 import com.hospital.bed.model.Bed;
 import com.hospital.admission.enums.EventType;
+import com.hospital.logVisits.model.LogVisits;
 import com.hospital.doctor.model.Doctor;
 import com.hospital.patient.model.Patient;
 import jakarta.persistence.*;
@@ -40,6 +41,8 @@ public class Admission {
     @Enumerated(EnumType.STRING)
     private AdmissionStatus status;
 
+    @OneToMany(mappedBy = "admission")
+    private List<LogVisits> logVisits;
     @ManyToMany
     @JoinTable(name = "admission_doctors", joinColumns = @JoinColumn(name = "admission_id"), inverseJoinColumns = @JoinColumn(name = "doctor_id"))
     private List<Doctor> doctors = new ArrayList<>();

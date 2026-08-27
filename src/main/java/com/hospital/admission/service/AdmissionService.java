@@ -62,7 +62,7 @@ public class AdmissionService {
         return new Admission(bed, patient);
     }
 
-    private Admission getById(Long admissionId) {
+    public Admission getById(Long admissionId) {
         return this.admissionRepository.findById(admissionId).orElseThrow(() ->
                 new EntityNotFoundException("Admission with id " + admissionId + " not found"));
     }

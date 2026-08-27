@@ -1,9 +1,9 @@
-package com.hospital.exam.model;
+package com.hospital.examscheduling.model;
 
 import com.hospital.admission.model.Admission;
 import com.hospital.doctor.model.Doctor;
-import com.hospital.exam.enums.ExamStatus;
-import com.hospital.exam.enums.ExamType;
+import com.hospital.examscheduling.enums.ExamStatus;
+import com.hospital.examscheduling.enums.ExamType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Exam {
+public class ExamScheduling {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

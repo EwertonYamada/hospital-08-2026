@@ -62,7 +62,7 @@ public class AdmissionService {
         return new Admission(bed, patient);
     }
 
-    private Admission getById(Long admissionId) {
+    public Admission getById(Long admissionId) {
         return this.admissionRepository.findById(admissionId).orElseThrow(() ->
                 new EntityNotFoundException("Admission with id " + admissionId + " not found"));
     }
@@ -84,6 +84,12 @@ public class AdmissionService {
             throw new RuntimeException("The patient with id " +admission.getPatient().getId() + " has already been discharged.");
     }
 
+    public void validateAdmissionIsActive(AdmissionStatus status) {
+        if (status != AdmissionStatus.ACTIVE) {
+            throw new RuntimeException("Paciente não está hospitalizado");
+        }
+    }
+
     public Admission vincularMedico(Long admissionId, Long medicoId) {
         Admission admission = this.getById(admissionId);
         if (!admission.getStatus().equals(AdmissionStatus.ACTIVE)) {
@@ -95,5 +101,11 @@ public class AdmissionService {
             this.admissionRepository.save(admission);
         }
         return  admission;
+    }
+
+    public void validateDoctorIsResponsibleForAdmission(Admission admission, Doctor doctor) {
+        if (!admission.getDoctors().contains(doctor)) {
+            throw new RuntimeException("O médico informado não é responsável por essa internação");
+        }
     }
 }

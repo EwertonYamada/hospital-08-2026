@@ -65,7 +65,7 @@ public class AdmissionService {
         return new Admission(bed, patient);
     }
 
-    private Admission getById(Long admissionId) {
+    public Admission getById(Long admissionId) {
         return this.admissionRepository.findById(admissionId).orElseThrow(() ->
                 new EntityNotFoundException("Admission with id " + admissionId + " not found"));
     }
@@ -87,6 +87,12 @@ public class AdmissionService {
             throw new RuntimeException("The patient with id " +admission.getPatient().getId() + " has already been discharged.");
     }
 
+    public void validateAdmissionIsActive(AdmissionStatus status) {
+        if (status != AdmissionStatus.ACTIVE) {
+            throw new RuntimeException("Paciente não está hospitalizado");
+        }
+    }
+
     public Admission vincularMedico(Long admissionId, Long medicoId) {
         Admission admission = this.getById(admissionId);
         if (!admission.getStatus().equals(AdmissionStatus.ACTIVE)) {
@@ -103,16 +109,12 @@ public class AdmissionService {
     @Transactional
     public Admission transferirLeito(Long admissionId, BedTransferRequest request) {
         Admission oldAdmission = this.getById(admissionId);
-
         if (!oldAdmission.getStatus().equals(AdmissionStatus.ACTIVE)) {
             throw new RuntimeException("Internacao inativa");
         }
-
         Bed newBed = this.bedService.getAvailableBedById(request.newBedId());
-
         Specialty oldSpecialty = oldAdmission.getBed().getRoom().getWard().getSpecialty();
         Specialty newSpecialty = newBed.getRoom().getWard().getSpecialty();
-
         Doctor doctor = null;
         if (!oldSpecialty.equals(newSpecialty)) {
             if (request.doctorId() == null) {
@@ -123,20 +125,23 @@ public class AdmissionService {
                 throw new RuntimeException("Medico nao e da especialidade da nova ala");
             }
         }
-
         this.updateBed(oldAdmission.getBed(), BedStatus.IN_PREPARATION);
-
         oldAdmission.setDischargedAt(new Date());
         oldAdmission.setStatus(AdmissionStatus.INACTIVE);
         this.admissionRepository.save(oldAdmission);
-
         Admission newAdmission = new Admission(newBed, oldAdmission.getPatient());
         if (doctor != null) {
             newAdmission.getDoctors().add(doctor);
         }
         this.admissionRepository.save(newAdmission);
         this.updateBed(newBed, BedStatus.OCCUPIED);
-
         return newAdmission;
     }
+
+    public void validateDoctorIsResponsibleForAdmission(Admission admission, Doctor doctor) {
+        if (!admission.getDoctors().contains(doctor)) {
+            throw new RuntimeException("O médico informado não é responsável por essa internação");
+        }
+    }
 }
+

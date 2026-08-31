@@ -2,13 +2,22 @@ package com.hospital.servicesprovided.service;
 
 import com.hospital.admission.model.Admission;
 import com.hospital.admission.service.AdmissionService;
+import com.hospital.daily.model.Daily;
+import com.hospital.daily.service.DailyService;
 import com.hospital.doctor.model.Doctor;
 import com.hospital.doctor.service.DoctorService;
+import com.hospital.drug.model.Drug;
+import com.hospital.drug.service.DrugService;
+import com.hospital.exam.model.Exam;
+import com.hospital.exam.service.ExamService;
 import com.hospital.servicesprovided.dto.ServicesProvidedRequestDTO;
 import com.hospital.servicesprovided.dto.ServicesProvidedResponseDTO;
 import com.hospital.servicesprovided.model.ServicesProvided;
 import com.hospital.servicesprovided.repository.ServicesProvidedRepository;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class ServicesProvidedService {
@@ -16,11 +25,17 @@ public class ServicesProvidedService {
     private final ServicesProvidedRepository servicesProvidedRepository;
     private final AdmissionService admissionService;
     private final DoctorService doctorService;
+    private final DrugService drugService;
+    private final DailyService dailyService;
+    private final ExamService examService;
 
-    public ServicesProvidedService(ServicesProvidedRepository servicesProvidedRepository, AdmissionService admissionService, DoctorService doctorService) {
+    public ServicesProvidedService(ServicesProvidedRepository servicesProvidedRepository, AdmissionService admissionService, DoctorService doctorService, DrugService drugService, DailyService dailyService, ExamService examService) {
         this.servicesProvidedRepository = servicesProvidedRepository;
         this.admissionService = admissionService;
         this.doctorService = doctorService;
+        this.drugService = drugService;
+        this.dailyService = dailyService;
+        this.examService = examService;
     }
 
     private void validateServiceOrigin(ServicesProvidedRequestDTO request) {
@@ -55,15 +70,14 @@ public class ServicesProvidedService {
         }
     }
 
-    public void getId(Long id) {
-        ServicesProvided servicesProvided = servicesProvidedRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Serviço não existe"));
-    }
-
     public ServicesProvidedResponseDTO create(ServicesProvidedRequestDTO request) {
         Admission admission = admissionService.getById(request.getAdmissionId());
-        Doctor doctor = doctorService.getById(request.getDoctorId());
+        Doctor doctor = request.getDoctorId() != null ? doctorService.getById(request.getDoctorId()) : null;
         validateServiceOrigin(request);
+
+        if (doctor != null) {
+            admissionService.validateDoctorIsResponsibleForAdmission(admission, doctor);
+        }
 
         ServicesProvided servicesProvided = new ServicesProvided();
         servicesProvided.setAdmission(admission);
@@ -71,7 +85,61 @@ public class ServicesProvidedService {
         servicesProvided.setType(request.getType());
         servicesProvided.setCount(request.getCount());
 
+        BigDecimal unitValue = null;
+        switch (request.getType()) {
+            case DRUG -> {
+                Drug drug = drugService.getById(request.getDrugId());
+                servicesProvided.setDrug(drug);
+                unitValue = drug.getValue();
+            }
+            case DAILY -> {
+                Daily daily = dailyService.getById(request.getDailyId());
+                servicesProvided.setDaily(daily);
+                unitValue = daily.getValue();
+            }
+            case EXAM -> {
+                Exam exam = examService.getById(request.getExamId());
+                servicesProvided.setExam(exam);
+                unitValue = exam.getValue();
+            }
+        }
+
+        BigDecimal totalValue = unitValue.multiply(BigDecimal.valueOf(request.getCount()));
+
+        servicesProvided.setUnitValue(unitValue);
+        servicesProvided.setTotalValue(totalValue);
+
         ServicesProvided save = servicesProvidedRepository.save(servicesProvided);
         return toResponseDTO(save);
+    }
+
+    public ServicesProvidedResponseDTO findById(Long id) {
+        ServicesProvided servicesProvided = servicesProvidedRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Serviço não existe"));
+        return toResponseDTO(servicesProvided);
+    }
+
+    public List<ServicesProvidedResponseDTO> findAll() {
+        return servicesProvidedRepository.findAll()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+
+    public ServicesProvidedResponseDTO toResponseDTO(ServicesProvided servicesProvided) {
+        return new ServicesProvidedResponseDTO(
+                servicesProvided.getId(),
+                servicesProvided.getAdmission().getId(),
+                servicesProvided.getDoctor() != null ? servicesProvided.getDoctor().getId() : null,
+                servicesProvided.getType(),
+                servicesProvided.getCount(),
+                servicesProvided.getUnitValue(),
+                servicesProvided.getTotalValue(),
+                servicesProvided.getDrug() != null ? servicesProvided.getDrug().getId() : null,
+                servicesProvided.getDaily() != null ? servicesProvided.getDaily().getId() : null,
+                servicesProvided.getExam() != null ? servicesProvided.getExam().getId() : null,
+                servicesProvided.getCreatedAt()
+        );
     }
 }

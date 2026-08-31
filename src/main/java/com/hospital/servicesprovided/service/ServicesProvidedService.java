@@ -2,6 +2,7 @@ package com.hospital.servicesprovided.service;
 
 import com.hospital.admission.model.Admission;
 import com.hospital.admission.service.AdmissionService;
+import com.hospital.bed.enums.BedType;
 import com.hospital.daily.model.Daily;
 import com.hospital.daily.service.DailyService;
 import com.hospital.doctor.model.Doctor;
@@ -12,11 +13,16 @@ import com.hospital.exam.model.Exam;
 import com.hospital.exam.service.ExamService;
 import com.hospital.servicesprovided.dto.ServicesProvidedRequestDTO;
 import com.hospital.servicesprovided.dto.ServicesProvidedResponseDTO;
+import com.hospital.servicesprovided.enums.ServicesType;
 import com.hospital.servicesprovided.model.ServicesProvided;
 import com.hospital.servicesprovided.repository.ServicesProvidedRepository;
+import com.hospital.ward.enums.Specialty;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -126,6 +132,43 @@ public class ServicesProvidedService {
                 .toList();
     }
 
+    @Scheduled(cron = "0 0 0 * * *")
+    public void generateDailyCharges() {
+
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        List<Admission> activeAdmissions = admissionService.getAllActiveAdmissions();
+
+        for (Admission admission : activeAdmissions) {
+            BedType bedType = admission.getBed().getBedType();
+            Specialty specialty = admission.getBed().getRoom().getWard().getSpecialty();
+
+            Daily daily = dailyService.consultar(bedType, specialty);
+
+            boolean jaGerouHoje = servicesProvidedRepository.existsByAdmission_IdAndTypeAndCreatedAtBetween(
+                    admission.getId(), ServicesType.DAILY, startOfDay, endOfDay);
+
+            if (jaGerouHoje) {
+                continue;
+            }
+
+            ServicesProvided servicesProvided = new ServicesProvided();
+            servicesProvided.setAdmission(admission);
+            servicesProvided.setDoctor(null);
+            servicesProvided.setType(ServicesType.DAILY);
+            servicesProvided.setCount(1);
+            servicesProvided.setDaily(daily);
+
+            BigDecimal unitValue = daily.getValue();
+            BigDecimal totalValue = unitValue.multiply(BigDecimal.valueOf(1));
+
+            servicesProvided.setUnitValue(unitValue);
+            servicesProvided.setTotalValue(totalValue);
+
+            servicesProvidedRepository.save(servicesProvided);
+        }
+    }
 
     public ServicesProvidedResponseDTO toResponseDTO(ServicesProvided servicesProvided) {
         return new ServicesProvidedResponseDTO(

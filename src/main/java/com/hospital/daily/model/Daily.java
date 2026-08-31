@@ -1,7 +1,9 @@
-package com.hospital.exam.model;
+package com.hospital.daily.model;
 
-import com.hospital.examscheduling.enums.ExamType;
+import com.hospital.bed.enums.BedType;
+import com.hospital.ward.enums.Specialty;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,17 +13,18 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
-public class Exam {
+public class Daily {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private BedType type;
 
     @Enumerated(EnumType.STRING)
-    private ExamType type;
+    private Specialty specialty;
 
     @Column(name = "value")
     private BigDecimal value;

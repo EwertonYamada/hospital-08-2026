@@ -1,10 +1,9 @@
 package com.hospital.exam.controller;
 
-import com.hospital.exam.dto.ExamRequestDTO;
-import com.hospital.exam.dto.ExamResponseDTO;
-import com.hospital.exam.dto.ExamUpdateRequestDTO;
+import com.hospital.exam.dto.ExamRequest;
+import com.hospital.exam.dto.ExamUpdateRequest;
+import com.hospital.exam.model.Exam;
 import com.hospital.exam.service.ExamService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/exams")
+@RequestMapping("/exam")
 public class ExamController {
-
     private final ExamService examService;
 
     public ExamController(ExamService examService) {
@@ -22,34 +20,32 @@ public class ExamController {
     }
 
     @PostMapping
-    public ResponseEntity<ExamResponseDTO> create(@RequestBody @Valid ExamRequestDTO dto) {
-        ExamResponseDTO exam = examService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(exam);
+    public ResponseEntity<Exam> criar(@RequestBody ExamRequest request){
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(examService.criar(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ExamResponseDTO> findById(@PathVariable Long id) {
-        ExamResponseDTO exam = examService.findById(id);
-        return ResponseEntity.ok(exam);
+    public ResponseEntity<Exam> getById(@PathVariable Long id){
+
+        return ResponseEntity.status(HttpStatus.OK).body(examService.getById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<ExamResponseDTO>> findAll() {
-        List<ExamResponseDTO> exams = examService.findAll();
-        return ResponseEntity.ok(exams);
+    public ResponseEntity<List<Exam>> findAll(){
+
+        return ResponseEntity.status(HttpStatus.OK).body(examService.findAll());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ExamResponseDTO> update(@PathVariable Long id, @RequestBody @Valid ExamUpdateRequestDTO dto) {
-        ExamResponseDTO exam = examService.update(id, dto);
-        return ResponseEntity.ok(exam);
+    public ResponseEntity<Exam> atualizar(@PathVariable Long id, @RequestBody ExamUpdateRequest request){
+
+        return ResponseEntity.status(HttpStatus.OK).body(examService.atualizar(id,request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        examService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deletar(@PathVariable Long id){
+        this.examService.deletar(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
-
-

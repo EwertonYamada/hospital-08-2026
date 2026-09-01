@@ -50,6 +50,12 @@ public class ExamSchedulingController {
         examService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/realizar")
+    public ResponseEntity<ExamSchedulingResponseDTO> realizar(@PathVariable Long id) {
+        ExamSchedulingResponseDTO  exam = examService.realizarExame(id);
+        return ResponseEntity.ok(exam);
+    }
 }
 
 

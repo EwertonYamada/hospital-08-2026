@@ -4,12 +4,17 @@ import com.hospital.admission.model.Admission;
 import com.hospital.admission.service.AdmissionService;
 import com.hospital.doctor.model.Doctor;
 import com.hospital.doctor.service.DoctorService;
+import com.hospital.exam.model.Exam;
+import com.hospital.exam.service.ExamService;
 import com.hospital.examscheduling.dto.ExamSchedulingRequestDTO;
 import com.hospital.examscheduling.dto.ExamSchedulingResponseDTO;
 import com.hospital.examscheduling.dto.ExamSchedulingUpdateRequestDTO;
 import com.hospital.examscheduling.enums.ExamStatus;
 import com.hospital.examscheduling.model.ExamScheduling;
 import com.hospital.examscheduling.repository.ExamSchedulingRepository;
+import com.hospital.servicesprovided.enums.ServicesType;
+import com.hospital.servicesprovided.model.ServicesProvided;
+import com.hospital.servicesprovided.repository.ServicesProvidedRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,11 +26,15 @@ public class ExamSchedulingService {
     private final ExamSchedulingRepository examSchedulingRepository;
     private final AdmissionService admissionService;
     private final DoctorService doctorService;
+    private final ExamService examService;
+    private final ServicesProvidedRepository servicesProvidedRepository;
 
-    public ExamSchedulingService(ExamSchedulingRepository examSchedulingRepository, AdmissionService admissionService, DoctorService doctorService) {
+    public ExamSchedulingService(ExamSchedulingRepository examSchedulingRepository, AdmissionService admissionService, DoctorService doctorService, ExamService examService, ServicesProvidedRepository servicesProvidedRepository) {
         this.examSchedulingRepository = examSchedulingRepository;
         this.admissionService = admissionService;
         this.doctorService = doctorService;
+        this.examService = examService;
+        this.servicesProvidedRepository = servicesProvidedRepository;
     }
 
     public ExamSchedulingResponseDTO create(ExamSchedulingRequestDTO dto) {
@@ -77,6 +86,31 @@ public class ExamSchedulingService {
 
         ExamScheduling updated = examSchedulingRepository.save(examScheduling);
         return toResponseDTO(updated);
+    }
+
+    public ExamSchedulingResponseDTO realizarExame(Long id) {
+        ExamScheduling examScheduling = getExamOrThrow(id);
+
+        if (examScheduling.getExamStatus() == ExamStatus.CARRIED_OUT || examScheduling.getExamStatus() == ExamStatus.CANCELED) {
+            throw new RuntimeException("Exame já foi realizado ou cancelado");
+        }
+
+        Exam exam = examService.getByType(examScheduling.getExamType());
+
+        examScheduling.setExamStatus(ExamStatus.CARRIED_OUT);
+        ExamScheduling examAtualizado = examSchedulingRepository.save(examScheduling);
+
+        ServicesProvided servicesProvided = new ServicesProvided();
+        servicesProvided.setAdmission(examScheduling.getAdmission());
+        servicesProvided.setDoctor(examScheduling.getDoctor());
+        servicesProvided.setType(ServicesType.EXAM);
+        servicesProvided.setCount(1);
+        servicesProvided.setUnitValue(exam.getValue());
+        servicesProvided.setTotalValue(exam.getValue());
+        servicesProvided.setExam(exam);
+        servicesProvidedRepository.save(servicesProvided);
+
+        return toResponseDTO(examAtualizado);
     }
 
     public void delete(Long id) {

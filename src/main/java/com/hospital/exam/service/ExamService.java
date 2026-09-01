@@ -4,6 +4,7 @@ import com.hospital.exam.dto.ExamRequest;
 import com.hospital.exam.dto.ExamUpdateRequest;
 import com.hospital.exam.model.Exam;
 import com.hospital.exam.repository.ExamRepository;
+import com.hospital.examscheduling.enums.ExamType;
 import com.hospital.utils.exceptions.AlreadyExistingEntityException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -50,5 +51,10 @@ public class ExamService {
     public void deletar(Long id) {
         Exam exam = this.getById(id);
         this.examRepository.delete(exam);
+    }
+
+    public Exam getByType(ExamType type) {
+        Exam exam = examRepository.findByType(type).orElseThrow(() -> new EntityNotFoundException("Tipo nao encontrado"));
+        return  exam;
     }
 }

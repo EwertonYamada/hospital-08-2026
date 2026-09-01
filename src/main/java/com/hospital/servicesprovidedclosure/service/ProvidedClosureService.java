@@ -3,6 +3,10 @@ package com.hospital.servicesprovidedclosure.service;
 import com.hospital.admission.enums.AdmissionStatus;
 import com.hospital.admission.model.Admission;
 import com.hospital.admission.service.AdmissionService;
+import com.hospital.medicalInsurance.model.MedicalInsurance;
+import com.hospital.patient.model.Patient;
+import com.hospital.servicesprovided.model.ServicesProvided;
+import com.hospital.servicesprovided.repository.ServicesProvidedRepository;
 import com.hospital.servicesprovidedclosure.enums.ClosureStatus;
 import com.hospital.servicesprovidedclosure.model.ServicesProvidedClosure;
 import com.hospital.servicesprovidedclosure.repository.ServicesProvidedClosureRepository;
@@ -18,10 +22,12 @@ public class ProvidedClosureService {
 
     private final ServicesProvidedClosureRepository servicesProvidedClosureRepository;
     private final AdmissionService admissionService;
+    private final ServicesProvidedRepository servicesProvidedRepository;
 
-    public ProvidedClosureService(ServicesProvidedClosureRepository servicesProvidedClosureRepository, AdmissionService admissionService) {
+    public ProvidedClosureService(ServicesProvidedClosureRepository servicesProvidedClosureRepository, AdmissionService admissionService, ServicesProvidedRepository servicesProvidedRepository) {
         this.servicesProvidedClosureRepository = servicesProvidedClosureRepository;
         this.admissionService = admissionService;
+        this.servicesProvidedRepository = servicesProvidedRepository;
     }
 
     public ServicesProvidedClosure fechar(Long admissionId) {
@@ -35,8 +41,20 @@ public class ProvidedClosureService {
             throw new RuntimeException("Internacao ainda nao recebeu alta");
         }
 
-        BigDecimal subtotal = BigDecimal.ZERO; // TODO: substituir pela soma real das despesas quando o Requisito 10 (ServicesProvided) do Carlos existir
-        BigDecimal coverageRate = BigDecimal.ZERO; // TODO: substituir pelo coverage_rate real do convênio quando existir o vínculo paciente-convênio
+        Patient patient = admission.getPatient();
+        MedicalInsurance medicalInsurance = patient.getMedicalInsurance();
+
+        if (medicalInsurance == null) {
+            throw new RuntimeException("Paciente nao possui convenio");
+        }
+
+        BigDecimal coverageRate = BigDecimal.valueOf(medicalInsurance.getCoverageRate());
+
+        List<ServicesProvided> despesas = servicesProvidedRepository.findByAdmission_Id(admissionId);
+
+        BigDecimal subtotal = despesas.stream()
+                .map(ServicesProvided::getTotalValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal discount = subtotal.multiply(coverageRate);
         BigDecimal total = subtotal.subtract(discount);

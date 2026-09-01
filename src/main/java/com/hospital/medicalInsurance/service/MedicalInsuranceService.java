@@ -50,7 +50,7 @@ public class MedicalInsuranceService {
         MedicalInsurance medicalInsurance = medicalInsuranceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Convênio não existe"));
 
-        if (medicalInsuranceRepository.existsByTypeAndIdNot(id, dto.getType()){
+        if (medicalInsuranceRepository.existsByTypeAndIdNot(id, dto.getType())){
             throw new RuntimeException("Já existe um convênio cadastrado desse tipo");
         }
 

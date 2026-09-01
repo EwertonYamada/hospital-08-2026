@@ -39,6 +39,11 @@ public class MedicalInsuranceService {
         return toResponseDTO(medicalInsurance);
     }
 
+    public MedicalInsurance getById(Long id) {
+        return medicalInsuranceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Convênio não existe"));
+    }
+
     public List<MedicalInsuranceResponseDTO> findAll() {
         return medicalInsuranceRepository.findAll()
                 .stream()
@@ -50,7 +55,7 @@ public class MedicalInsuranceService {
         MedicalInsurance medicalInsurance = medicalInsuranceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Convênio não existe"));
 
-        if (medicalInsuranceRepository.existsByTypeAndIdNot(id, dto.getType()){
+        if (medicalInsuranceRepository.existsByTypeAndIdNot(id, dto.getType())) {
             throw new RuntimeException("Já existe um convênio cadastrado desse tipo");
         }
 
@@ -68,6 +73,7 @@ public class MedicalInsuranceService {
         if (patientService.existsPatientWithMedicalInsurance(id)) {
             throw new RuntimeException("Impossivel de Deletar, existe Pacientes vinculados a este Convênio");
         }
+
         medicalInsuranceRepository.deleteById(id);
     }
 

@@ -1,5 +1,7 @@
 package com.hospital.patient.service;
 
+import com.hospital.medicalInsurance.model.MedicalInsurance;
+import com.hospital.medicalInsurance.service.MedicalInsuranceService;
 import com.hospital.patient.dto.PatientRequest;
 import com.hospital.patient.model.Patient;
 import com.hospital.patient.repository.PatientRepository;
@@ -11,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+    private final MedicalInsuranceService medicalInsuranceService;
 
-    public PatientService(PatientRepository patientRepository) {
+    public PatientService(PatientRepository patientRepository, MedicalInsuranceService medicalInsuranceService) {
         this.patientRepository = patientRepository;
+        this.medicalInsuranceService = medicalInsuranceService;
     }
 
     @Transactional
@@ -47,4 +51,10 @@ public class PatientService {
         return patientRepository.existsByMedicalInsurance_Id(medicalInsuranceId);
     }
 
+    public Patient linkMedicalInsurance(Long patientId, Long medicalInsuranceId) {
+        Patient patient = getById(patientId);
+        MedicalInsurance medicalInsurance = medicalInsuranceService.getById(medicalInsuranceId);
+        patient.setMedicalInsurance(medicalInsurance);
+        return save(patient);
+    }
 }

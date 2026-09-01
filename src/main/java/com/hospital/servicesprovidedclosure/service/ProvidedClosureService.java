@@ -80,4 +80,16 @@ public class ProvidedClosureService {
     public List<ServicesProvidedClosure> findAll() {
         return servicesProvidedClosureRepository.findAll();
     }
+
+    public void validateClosureIsNotPaid(ClosureStatus status) {
+        if (status == ClosureStatus.PAID) {
+            throw new RuntimeException("Fechamento já está pago");
+        }
+    }
+
+    public void markAsPaid(Long id) {
+        ServicesProvidedClosure closure = getById(id);
+        closure.setStatus(ClosureStatus.PAID);
+        servicesProvidedClosureRepository.save(closure);
+    }
 }

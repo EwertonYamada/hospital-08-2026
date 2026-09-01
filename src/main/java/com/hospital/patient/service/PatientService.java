@@ -1,6 +1,7 @@
 package com.hospital.patient.service;
 
 import com.hospital.medicalInsurance.model.MedicalInsurance;
+import com.hospital.medicalInsurance.repository.MedicalInsuranceRepository;
 import com.hospital.medicalInsurance.service.MedicalInsuranceService;
 import com.hospital.patient.dto.PatientRequest;
 import com.hospital.patient.model.Patient;
@@ -13,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PatientService {
 
     private final PatientRepository patientRepository;
-    private final MedicalInsuranceService medicalInsuranceService;
+    private final MedicalInsuranceRepository medicalInsuranceRepository;
 
-    public PatientService(PatientRepository patientRepository, MedicalInsuranceService medicalInsuranceService) {
+    public PatientService(PatientRepository patientRepository,MedicalInsuranceRepository medicalInsuranceRepository) {
         this.patientRepository = patientRepository;
-        this.medicalInsuranceService = medicalInsuranceService;
+        this.medicalInsuranceRepository = medicalInsuranceRepository;
     }
 
     @Transactional
@@ -53,7 +54,8 @@ public class PatientService {
 
     public Patient linkMedicalInsurance(Long patientId, Long medicalInsuranceId) {
         Patient patient = getById(patientId);
-        MedicalInsurance medicalInsurance = medicalInsuranceService.getById(medicalInsuranceId);
+        MedicalInsurance medicalInsurance = medicalInsuranceRepository.findById(medicalInsuranceId)
+                .orElseThrow(() -> new EntityNotFoundException("Convenio com id " + medicalInsuranceId + " nao encontrado"));
         patient.setMedicalInsurance(medicalInsurance);
         return save(patient);
     }

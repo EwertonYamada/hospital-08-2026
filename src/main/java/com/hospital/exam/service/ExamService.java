@@ -1,115 +1,60 @@
 package com.hospital.exam.service;
 
-import com.hospital.admission.model.Admission;
-import com.hospital.admission.service.AdmissionService;
-import com.hospital.doctor.model.Doctor;
-import com.hospital.doctor.service.DoctorService;
-import com.hospital.exam.dto.ExamRequestDTO;
-import com.hospital.exam.dto.ExamResponseDTO;
-import com.hospital.exam.dto.ExamUpdateRequestDTO;
-import com.hospital.exam.enums.ExamStatus;
+import com.hospital.exam.dto.ExamRequest;
+import com.hospital.exam.dto.ExamUpdateRequest;
 import com.hospital.exam.model.Exam;
 import com.hospital.exam.repository.ExamRepository;
+import com.hospital.examscheduling.enums.ExamType;
+import com.hospital.utils.exceptions.AlreadyExistingEntityException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class ExamService {
-
     private final ExamRepository examRepository;
-    private final AdmissionService admissionService;
-    private final DoctorService doctorService;
 
-    public ExamService(ExamRepository examRepository, AdmissionService admissionService, DoctorService doctorService) {
+    public ExamService(ExamRepository examRepository) {
         this.examRepository = examRepository;
-        this.admissionService = admissionService;
-        this.doctorService = doctorService;
     }
 
-    public ExamResponseDTO create(ExamRequestDTO dto) {
-        Admission admission = admissionService.getById(dto.getAdmissionId());
-        Doctor doctor = doctorService.getById(dto.getDoctorId());
-        admissionService.validateAdmissionIsActive(admission.getStatus());
-
-        validatePatientHasNoExamAtDate(admission.getPatient().getId(), dto.getDate());
-
-        admissionService.validateDoctorIsResponsibleForAdmission(admission, doctor);
-
+    public Exam criar(ExamRequest request) {
+        if (examRepository.existsByType(request.type())) {
+            throw  new AlreadyExistingEntityException("Duplicado");
+        }
         Exam exam = new Exam();
-        exam.setDate(dto.getDate());
-        exam.setNameExam(dto.getNameExam());
-        exam.setExamType(dto.getExamType());
-        exam.setExamStatus(ExamStatus.SCHEDULED);
-        exam.setAdmission(admission);
-        exam.setDoctor(doctor);
-
-        Exam salvo = examRepository.save(exam);
-        return toResponseDTO(salvo);
-
+        exam.setName(request.name());
+        exam.setType(request.type());
+        exam.setValue(request.value());
+        examRepository.save(exam);
+        return exam;
     }
 
-    public ExamResponseDTO findById(Long id) {
-        Exam exam = getExamOrThrow(id);
-        return toResponseDTO(exam);
+    public Exam getById(Long id) {
+        return this.examRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Id nao encontrado"));
     }
 
-    public List<ExamResponseDTO> findAll() {
-        return examRepository.findAll()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+    public List<Exam> findAll() {
+        return this.examRepository.findAll();
     }
 
-    public ExamResponseDTO update(Long id, ExamUpdateRequestDTO dto) {
-        Admission admission = admissionService.getById(dto.getAdmissionId());
-        Exam exam = getExamOrThrow(id);
+    public Exam atualizar(Long id, ExamUpdateRequest request) {
 
-        admissionService.validateAdmissionIsActive(admission.getStatus());
+        Exam exam = this.getById(id);
 
-        validatePatientHasNoExamAtDate(admission.getPatient().getId(), dto.getDate(), id);
-
-        exam.setDate(dto.getDate());
-        exam.setNameExam(dto.getNameExam());
-        exam.setExamType(dto.getExamType());
-        exam.setAdmission(admission);
-
-        Exam updated = examRepository.save(exam);
-        return toResponseDTO(updated);
+        exam.setValue(request.value());
+        examRepository.save(exam);
+        return exam;
     }
 
-    public void delete(Long id) {
-        Exam exam = getExamOrThrow(id);
-        examRepository.deleteById(id);
+    public void deletar(Long id) {
+        Exam exam = this.getById(id);
+        this.examRepository.delete(exam);
     }
 
-    public void validatePatientHasNoExamAtDate(Long patientId, LocalDateTime date) {
-        if (examRepository.existsByAdmission_Patient_IdAndDate(patientId, date)) {
-            throw new RuntimeException("Patient já tem um exame nesse horario");
-        }
-    }
-
-    public void validatePatientHasNoExamAtDate(Long patientId, LocalDateTime date, Long examId) {
-        if (examRepository.existsByAdmission_Patient_IdAndDateAndIdNot(patientId, date, examId)) {
-            throw new RuntimeException("Patient já tem um exame nesse horario");
-        }
-    }
-
-    public Exam getExamOrThrow(Long id) {
-        return examRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Exame não existe"));
-    }
-
-    public ExamResponseDTO toResponseDTO(Exam exam) {
-        return new ExamResponseDTO(
-                exam.getId(),
-                exam.getDate(),
-                exam.getNameExam(),
-                exam.getExamType(),
-                exam.getExamStatus(),
-                exam.getAdmission().getId(),
-                exam.getDoctor().getId()
-        );
+    public Exam getByType(ExamType type) {
+        Exam exam = examRepository.findByType(type).orElseThrow(() -> new EntityNotFoundException("Tipo nao encontrado"));
+        return  exam;
     }
 }

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,5 +17,5 @@ public class MedicalInsuranceRequestDTO {
     private MedicalInsuranceType type;
 
     @NotNull(message = "Taxa de Cobertura do Convênio é obrigatório")
-    private Float coverageRate;
+    private BigDecimal coverageRate;
 }

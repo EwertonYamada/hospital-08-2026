@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,5 +14,5 @@ public class MedicalInsuranceResponseDTO {
 
     private Long id;
     private MedicalInsuranceType type;
-    private Float coverageRate;
+    private BigDecimal coverageRate;
 }

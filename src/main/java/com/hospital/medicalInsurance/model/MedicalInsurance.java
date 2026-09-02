@@ -1,13 +1,13 @@
 package com.hospital.medicalInsurance.model;
 
 import com.hospital.medicalInsurance.enums.MedicalInsuranceType;
-import com.hospital.patient.model.Patient;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.math.BigDecimal;
+
 
 @Entity
 @Table(name = "medicalInsurance")
@@ -23,5 +23,5 @@ public class MedicalInsurance {
     @Column(nullable = false, unique = true)
     private MedicalInsuranceType type;
     @Column(nullable = false)
-    private Float coverageRate;
+    private BigDecimal coverageRate;
 }

@@ -1,10 +1,8 @@
 package com.hospital.patient.model;
 
+import com.hospital.medicalInsurance.model.MedicalInsurance;
 import com.hospital.patient.dto.PatientRequest;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,6 +32,10 @@ public class Patient {
 
     @Column(name = "is_hospitalized")
     private boolean isHospitalized = false;
+
+    @ManyToOne
+    @JoinColumn(name = "medical_insurance_id")
+    private MedicalInsurance medicalInsurance;
 
     public Patient(PatientRequest patientRequest) {
         this.name = patientRequest.name();

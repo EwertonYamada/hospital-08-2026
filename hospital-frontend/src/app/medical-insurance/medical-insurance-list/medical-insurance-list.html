@@ -1,0 +1,27 @@
+<h2>Convênios cadastrados</h2>
+
+<a routerLink="/convenio/novo" class="btn">+ Novo Convênio</a>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Tipo</th>
+      <th>Taxa de Cobertura</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (medicalInsurance of medicalInsurances(); track medicalInsurance.id) {
+      <tr>
+        <td>{{ medicalInsurance.id }}</td>
+        <td>{{ medicalInsurance.type }}</td>
+        <td>{{ medicalInsurance.coverageRate }}</td>
+        <td>
+          <a [routerLink]="['/convenio/editar', medicalInsurance.id]" class="action-link">Editar</a>
+          <button (click)="delete(medicalInsurance.id)" class="btn-danger">Excluir</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

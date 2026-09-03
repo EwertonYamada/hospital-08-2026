@@ -1,0 +1,20 @@
+<h2>Novo Hospital</h2>
+
+<form (ngSubmit)="save()">
+  <div>
+    <label for="name">Nome</label>
+    <input id="name" type="text" [(ngModel)]="name" name="name" required>
+  </div>
+
+  <div>
+    <label for="cnpj">CNPJ</label>
+    <input id="cnpj" type="text" [(ngModel)]="cnpj" name="cnpj" required>
+  </div>
+
+  <div>
+    <label for="phoneNumber">Telefone</label>
+    <input id="phoneNumber" type="text" [(ngModel)]="phoneNumber" name="phoneNumber" required>
+  </div>
+
+  <button type="submit">Salvar</button>
+</form>

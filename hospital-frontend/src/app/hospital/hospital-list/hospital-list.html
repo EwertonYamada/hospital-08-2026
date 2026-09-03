@@ -1,0 +1,29 @@
+<h2>Hospitais cadastrados</h2>
+
+<a routerLink="/hospital/novo" class="btn">+ Novo Hospital</a>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>CNPJ</th>
+      <th>Telefone</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (hospital of hospitals(); track hospital.id) {
+      <tr>
+        <td>{{ hospital.id }}</td>
+        <td>{{ hospital.name }}</td>
+        <td>{{ hospital.cnpj }}</td>
+        <td>{{ hospital.phoneNumber }}</td>
+        <td>
+          <a [routerLink]="['/hospital/editar', hospital.id]" class="action-link">Editar</a>
+          <button (click)="delete(hospital.id)" class="btn-danger">Excluir</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

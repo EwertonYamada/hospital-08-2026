@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -107,5 +108,9 @@ public class AdmissionService {
         if (!admission.getDoctors().contains(doctor)) {
             throw new RuntimeException("O médico informado não é responsável por essa internação");
         }
+    }
+
+    public List<Admission> getAllActiveAdmissions() {
+        return admissionRepository.findByStatus(AdmissionStatus.ACTIVE);
     }
 }

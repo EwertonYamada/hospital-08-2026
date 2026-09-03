@@ -5,8 +5,10 @@ import com.hospital.admission.model.Admission;
 import com.hospital.admission.service.AdmissionService;
 import com.hospital.medicalInsurance.model.MedicalInsurance;
 import com.hospital.patient.model.Patient;
+import com.hospital.servicesprovided.enums.ServicesType;
 import com.hospital.servicesprovided.model.ServicesProvided;
 import com.hospital.servicesprovided.repository.ServicesProvidedRepository;
+import com.hospital.servicesprovidedclosure.dto.FinancialReportResponseDTO;
 import com.hospital.servicesprovidedclosure.enums.ClosureStatus;
 import com.hospital.servicesprovidedclosure.model.ServicesProvidedClosure;
 import com.hospital.servicesprovidedclosure.repository.ServicesProvidedClosureRepository;
@@ -75,6 +77,43 @@ public class ProvidedClosureService {
     public ServicesProvidedClosure getById(Long id) {
         return servicesProvidedClosureRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Fechamento com o id " + id + " nao encontrado"));
+    }
+
+    public FinancialReportResponseDTO gerarRelatorio(Long closureId) {
+        ServicesProvidedClosure closure = this.getById(closureId);
+        Long admissionId = closure.getAdmission().getId();
+        List<ServicesProvided> despesas = servicesProvidedRepository.findByAdmission_Id(admissionId);
+
+        List<ServicesProvided> listaDiarias = despesas.stream()
+                .filter(d -> d.getType() == ServicesType.DAILY)
+                .toList();
+        List<ServicesProvided> listaMedicamentos = despesas.stream()
+                .filter(d -> d.getType() == ServicesType.DRUG)
+                .toList();
+        List<ServicesProvided> listaExames = despesas.stream()
+                .filter(d -> d.getType() == ServicesType.EXAM)
+                .toList();
+
+        Integer numeroDiarias = listaDiarias.size();
+        BigDecimal valorDiarias = listaDiarias.stream()
+                .map(ServicesProvided::getTotalValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal valorMedicamentos = listaMedicamentos.stream()
+                .map(ServicesProvided::getTotalValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal valorExame = listaExames.stream()
+                .map(ServicesProvided::getTotalValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new FinancialReportResponseDTO(
+                numeroDiarias,
+                valorDiarias,
+                valorMedicamentos,
+                valorExame,
+                closure.getSubtotal(),
+                closure.getDiscount(),
+                closure.getTotal()
+        );
     }
 
     public List<ServicesProvidedClosure> findAll() {

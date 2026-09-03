@@ -1,5 +1,6 @@
 package com.hospital.servicesprovidedclosure.controller;
 
+import com.hospital.servicesprovidedclosure.dto.FinancialReportResponseDTO;
 import com.hospital.servicesprovidedclosure.model.ServicesProvidedClosure;
 import com.hospital.servicesprovidedclosure.service.ProvidedClosureService;
 import org.springframework.http.HttpStatus;
@@ -34,5 +35,11 @@ public class ProvidedClosureController {
     public ResponseEntity<List<ServicesProvidedClosure>> findAll() {
 
         return ResponseEntity.status(HttpStatus.OK).body(this.providedClosureService.findAll());
+    }
+
+    @GetMapping("/{id}/report")
+    public ResponseEntity<FinancialReportResponseDTO>gerarRelatorio(@PathVariable Long id) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(this.providedClosureService.gerarRelatorio(id));
     }
 }

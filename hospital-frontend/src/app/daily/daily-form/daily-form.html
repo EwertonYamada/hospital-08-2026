@@ -1,0 +1,29 @@
+<h2>Nova Diária</h2>
+
+<form (ngSubmit)="save()">
+  <div>
+    <label for="type">Tipo de Leito</label>
+    <select id="type" [(ngModel)]="type" name="type" required>
+      <option value="" disabled>Selecione</option>
+      <option value="INFIRMARY">INFIRMARY</option>
+      <option value="UTI">UTI</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="specialty">Especialidade</label>
+    <select id="specialty" [(ngModel)]="specialty" name="specialty" required>
+      <option value="" disabled>Selecione</option>
+      @for (option of specialties; track option) {
+        <option [value]="option">{{ option }}</option>
+      }
+    </select>
+  </div>
+
+  <div>
+    <label for="value">Valor</label>
+    <input id="value" type="number" step="0.01" [(ngModel)]="value" name="value" required>
+  </div>
+
+  <button type="submit">Salvar</button>
+</form>

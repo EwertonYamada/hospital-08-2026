@@ -9,6 +9,8 @@ import com.hospital.ward.enums.Specialty;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DailyService {
     private final DailyRepository dailyRepository;
@@ -37,6 +39,10 @@ public class DailyService {
 
     public Daily getById(Long id) {
         return dailyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("id nao encontrado"));
+    }
+
+    public List<Daily> findAll() {
+        return dailyRepository.findAll();
     }
 
     public Daily consultar(BedType type, Specialty specialty) {

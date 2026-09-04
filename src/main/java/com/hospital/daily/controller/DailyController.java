@@ -8,6 +8,7 @@ import com.hospital.ward.enums.Specialty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 
 @RestController
@@ -42,5 +43,17 @@ public class DailyController {
     @GetMapping
     public ResponseEntity<Daily> consultar(@RequestParam BedType type, @RequestParam Specialty specialty){
         return  ResponseEntity.status(HttpStatus.OK).body(dailyService.consultar(type,specialty));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Daily>> findAll() {
+        List<Daily> dailies = dailyService.findAll();
+        return ResponseEntity.ok(dailies);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Daily> findById(@PathVariable Long id) {
+        Daily daily = dailyService.getById(id);
+        return ResponseEntity.ok(daily);
     }
 }

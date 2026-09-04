@@ -1,0 +1,29 @@
+<h2>Diárias cadastradas</h2>
+
+<a routerLink="/diaria/novo" class="btn">+ Nova Diária</a>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Tipo de Leito</th>
+      <th>Especialidade</th>
+      <th>Valor</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (daily of dailies(); track daily.id) {
+      <tr>
+        <td>{{ daily.id }}</td>
+        <td>{{ daily.type }}</td>
+        <td>{{ daily.specialty }}</td>
+        <td>{{ daily.value }}</td>
+        <td>
+          <a [routerLink]="['/diaria/editar', daily.id]" class="action-link">Editar</a>
+          <button (click)="delete(daily.id)" class="btn-danger">Excluir</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

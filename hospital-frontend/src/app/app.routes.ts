@@ -7,6 +7,8 @@ import { PatientList } from './patient/patient-list/patient-list';
 import { PatientForm } from './patient/patient-form/patient-form';
 import { AdmissionList } from './admission/admission-list/admission-list';
 import { AdmissionForm } from './admission/admission-form/admission-form';
+import { DailyList } from './daily/daily-list/daily-list';
+import { DailyForm } from './daily/daily-form/daily-form';
 
 export const routes: Routes = [
   { path: 'hospital', component: HospitalList },
@@ -18,5 +20,8 @@ export const routes: Routes = [
   { path: 'paciente', component: PatientList },
   { path: 'paciente/novo', component: PatientForm },
   { path: 'internacao', component: AdmissionList },
-{ path: 'internacao/novo', component: AdmissionForm },
+  { path: 'internacao/novo', component: AdmissionForm },
+  { path: 'diaria', component: DailyList },
+  { path: 'diaria/novo', component: DailyForm },
+  { path: 'diaria/editar/:id', component: DailyForm },
 ];

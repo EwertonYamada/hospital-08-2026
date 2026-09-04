@@ -6,6 +6,8 @@ import com.hospital.patient.service.PatientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/patient")
 public class PatientController {
@@ -24,6 +26,18 @@ public class PatientController {
     @PatchMapping("/{patientId}/medicalinsurance/{medicalInsuranceId}")
     public ResponseEntity<Patient> linkMedicalInsurance(@PathVariable Long patientId, @PathVariable Long medicalInsuranceId) {
         Patient patient = patientService.linkMedicalInsurance(patientId, medicalInsuranceId);
+        return ResponseEntity.ok(patient);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Patient> findById(@PathVariable Long id) {
+        Patient patient = patientService.getById(id);
+        return ResponseEntity.ok(patient);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Patient>> findAll() {
+        List<Patient> patient = patientService.findAll();
         return ResponseEntity.ok(patient);
     }
 }

@@ -10,6 +10,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class PatientService {
 
@@ -30,6 +32,10 @@ public class PatientService {
     public Patient getById(Long id) {
         return this.patientRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("Patient with id " + id + " not found"));
+    }
+
+    public List<Patient> findAll() {
+        return patientRepository.findAll();
     }
 
     public Patient getPatientToAdmission(Long patientId) {

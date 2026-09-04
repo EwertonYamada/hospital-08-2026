@@ -35,6 +35,10 @@ public class BedService {
                 new EntityNotFoundException("Bed with id " + bedId + " not found"));
     }
 
+    public List<Bed> findAll() {
+        return bedRepository.findAll();
+    }
+
     public Bed getAvailableBedById(Long bedId) {
         return this.bedRepository.findAvailableBedById(bedId).orElseThrow(() -> new RuntimeException("Bed with id " + bedId + " is not available"));
     }

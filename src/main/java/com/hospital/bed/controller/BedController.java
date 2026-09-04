@@ -28,4 +28,16 @@ public class BedController {
     public ResponseEntity<Bed> updateBedStatus(@PathVariable Long bedId, @RequestParam BedStatus bedStatus) {
         return ResponseEntity.ok(this.bedService.updateBedStatus(bedId, bedStatus));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Bed> findById(@PathVariable Long id) {
+        Bed bed = bedService.getById(id);
+        return ResponseEntity.ok(bed);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Bed>> findAll() {
+        List<Bed> beds = bedService.findAll();
+        return ResponseEntity.ok(beds);
+    }
 }

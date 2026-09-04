@@ -1,0 +1,49 @@
+<h2>Internações</h2>
+
+<a routerLink="/internacao/novo" class="btn">+ Nova Internação</a>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Paciente</th>
+      <th>Leito</th>
+      <th>Entrada</th>
+      <th>Alta</th>
+      <th>Status</th>
+      <th>Médicos</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (admission of admissions(); track admission.id) {
+      <tr>
+        <td>{{ admission.id }}</td>
+        <td>{{ admission.patient.name }}</td>
+        <td>{{ admission.bed.bedNumber }} ({{ admission.bed.bedType }})</td>
+        <td>{{ admission.admittedAt }}</td>
+        <td>{{ admission.dischargedAt ?? '-' }}</td>
+        <td>{{ admission.status }}</td>
+        <td>
+          @for (doctor of admission.doctors; track doctor.id) {
+            {{ doctor.name }}
+          } @empty {
+            Nenhum
+          }
+        </td>
+        <td>
+          @if (admission.status === 'ACTIVE') {
+            <button (click)="discharge(admission.id)" class="btn-danger">Dar Alta</button>
+            <select #doctorSelect>
+              <option value="" selected disabled>Selecione</option>
+              @for (doctor of doctors(); track doctor.id) {
+                <option [value]="doctor.id">{{ doctor.name }}</option>
+              }
+            </select>
+            <button (click)="linkDoctor(admission.id, doctorSelect.value)">Vincular Médico</button>
+          }
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

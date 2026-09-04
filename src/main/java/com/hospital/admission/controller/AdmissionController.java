@@ -6,6 +6,8 @@ import com.hospital.admission.service.AdmissionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admission")
 public class AdmissionController {
@@ -29,5 +31,17 @@ public class AdmissionController {
     @PostMapping("/{admissionId}/doctors/{doctorsId}")
     public ResponseEntity<Admission> vincularMedico(@PathVariable Long admissionId, @PathVariable Long doctorsId) {
         return ResponseEntity.ok(this.admissionService.vincularMedico(admissionId, doctorsId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Admission> findById(@PathVariable Long id) {
+        Admission admission = admissionService.getById(id);
+        return ResponseEntity.ok(admission);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Admission>> findAll() {
+        List<Admission> admissions = admissionService.findAll();
+        return ResponseEntity.ok(admissions);
     }
 }

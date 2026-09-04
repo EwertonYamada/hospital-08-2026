@@ -1,0 +1,20 @@
+<h2>Novo Paciente</h2>
+
+<form (ngSubmit)="save()">
+  <div>
+    <label for="name">Nome</label>
+    <input id="name" type="text" [(ngModel)]="name" name="name" required>
+  </div>
+
+  <div>
+    <label for="document">Documento</label>
+    <input id="document" type="text" [(ngModel)]="document" name="document" required>
+  </div>
+
+  <div>
+    <label for="birthDate">Data de Nascimento</label>
+    <input id="birthDate" type="date" [(ngModel)]="birthDate" name="birthDate" required>
+  </div>
+
+  <button type="submit">Salvar</button>
+</form>

@@ -1,0 +1,38 @@
+<h2>Pacientes cadastrados</h2>
+
+<a routerLink="/paciente/novo" class="btn">+ Novo Paciente</a>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>Documento</th>
+      <th>Nascimento</th>
+      <th>Internado</th>
+      <th>Convênio</th>
+      <th>Vincular Convênio</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (patient of patients(); track patient.id) {
+      <tr>
+        <td>{{ patient.id }}</td>
+        <td>{{ patient.name }}</td>
+        <td>{{ patient.document }}</td>
+        <td>{{ patient.birthDate }}</td>
+        <td>{{ patient.hospitalized ? 'Sim' : 'Não' }}</td>
+        <td>{{ patient.medicalInsurance ? patient.medicalInsurance.type : 'Nenhum' }}</td>
+        <td>
+          <select #insuranceSelect>
+            <option value="" selected disabled>Selecione</option>
+            @for (mi of medicalInsurances(); track mi.id) {
+              <option [value]="mi.id">{{ mi.type }}</option>
+            }
+          </select>
+          <button (click)="linkInsurance(patient.id, insuranceSelect.value)">Vincular</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

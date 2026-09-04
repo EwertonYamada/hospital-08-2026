@@ -68,6 +68,10 @@ public class AdmissionService {
                 new EntityNotFoundException("Admission with id " + admissionId + " not found"));
     }
 
+    public List<Admission> findAll() {
+        return admissionRepository.findAll();
+    }
+
 
     public Admission discharge(Long admissionId) {
         Admission admission = this.getById(admissionId);

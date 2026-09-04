@@ -1,0 +1,25 @@
+<h2>Nova Internação</h2>
+
+<form (ngSubmit)="save()">
+  <div>
+    <label for="patientId">Paciente</label>
+    <select id="patientId" [(ngModel)]="patientId" name="patientId" required>
+      <option value="" disabled>Selecione um paciente</option>
+      @for (patient of availablePatients(); track patient.id) {
+        <option [value]="patient.id">{{ patient.name }}</option>
+      }
+    </select>
+  </div>
+
+  <div>
+    <label for="bedId">Leito</label>
+    <select id="bedId" [(ngModel)]="bedId" name="bedId" required>
+      <option value="" disabled>Selecione um leito</option>
+      @for (bed of availableBeds(); track bed.id) {
+        <option [value]="bed.id">Leito {{ bed.bedNumber }} ({{ bed.bedType }})</option>
+      }
+    </select>
+  </div>
+
+  <button type="submit">Internar</button>
+</form>

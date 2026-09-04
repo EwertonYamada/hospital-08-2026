@@ -1,0 +1,66 @@
+<h2>Novo Lançamento de Serviço</h2>
+
+<form (ngSubmit)="save()">
+  <div>
+    <label for="admissionId">Internação</label>
+    <select id="admissionId" [(ngModel)]="admissionId" name="admissionId" required>
+      <option value="" disabled>Selecione uma internação</option>
+      @for (admission of activeAdmissions(); track admission.id) {
+        <option [value]="admission.id">#{{ admission.id }} — {{ admission.patient.name }}</option>
+      }
+    </select>
+  </div>
+
+  <div>
+    <label for="doctorId">Médico responsável (opcional)</label>
+    <select id="doctorId" [(ngModel)]="doctorId" name="doctorId">
+      <option value="">Nenhum</option>
+      @for (doctor of doctors(); track doctor.id) {
+        <option [value]="doctor.id">{{ doctor.name }}</option>
+      }
+    </select>
+  </div>
+
+  <div>
+    <label for="type">Tipo</label>
+    <select id="type" [(ngModel)]="type" name="type" required>
+      <option value="" disabled>Selecione</option>
+      <option value="DRUG">DRUG</option>
+      <option value="EXAM">EXAM</option>
+      <option value="DAILY">DAILY</option>
+    </select>
+  </div>
+
+  @switch (type) {
+    @case ('DRUG') {
+      <div>
+        <label for="relatedId">ID do Medicamento</label>
+        <input id="relatedId" type="number" [(ngModel)]="relatedId" name="relatedId" required>
+      </div>
+    }
+    @case ('EXAM') {
+      <div>
+        <label for="relatedId">ID do Exame</label>
+        <input id="relatedId" type="number" [(ngModel)]="relatedId" name="relatedId" required>
+      </div>
+    }
+    @case ('DAILY') {
+      <div>
+        <label for="dailyId">Diária</label>
+        <select id="dailyId" [(ngModel)]="dailyId" name="dailyId" required>
+          <option value="" disabled>Selecione</option>
+          @for (daily of dailies(); track daily.id) {
+            <option [value]="daily.id">{{ daily.type }} — {{ daily.specialty }} (R$ {{ daily.value }})</option>
+          }
+        </select>
+      </div>
+    }
+  }
+
+  <div>
+    <label for="count">Quantidade</label>
+    <input id="count" type="number" [(ngModel)]="count" name="count" required>
+  </div>
+
+  <button type="submit">Salvar</button>
+</form>

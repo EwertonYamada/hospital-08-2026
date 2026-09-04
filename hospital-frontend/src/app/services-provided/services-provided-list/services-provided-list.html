@@ -1,0 +1,30 @@
+<h2>Serviços Prestados</h2>
+
+<a routerLink="/servicos/novo" class="btn">+ Novo Lançamento</a>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Internação</th>
+      <th>Tipo</th>
+      <th>Qtd</th>
+      <th>Valor Unit.</th>
+      <th>Valor Total</th>
+      <th>Registrado em</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (service of services(); track service.id) {
+      <tr>
+        <td>{{ service.id }}</td>
+        <td>#{{ service.admissionId }}</td>
+        <td>{{ service.type }}</td>
+        <td>{{ service.count }}</td>
+        <td>{{ service.unitValue }}</td>
+        <td>{{ service.totalValue }}</td>
+        <td>{{ service.createdAt }}</td>
+      </tr>
+    }
+  </tbody>
+</table>

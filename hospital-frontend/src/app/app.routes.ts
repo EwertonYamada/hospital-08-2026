@@ -9,6 +9,8 @@ import { AdmissionList } from './admission/admission-list/admission-list';
 import { AdmissionForm } from './admission/admission-form/admission-form';
 import { DailyList } from './daily/daily-list/daily-list';
 import { DailyForm } from './daily/daily-form/daily-form';
+import { ServicesProvidedList } from './services-provided/services-provided-list/services-provided-list';
+import { ServicesProvidedForm } from './services-provided/services-provided-form/services-provided-form';
 
 export const routes: Routes = [
   { path: 'hospital', component: HospitalList },
@@ -24,4 +26,6 @@ export const routes: Routes = [
   { path: 'diaria', component: DailyList },
   { path: 'diaria/novo', component: DailyForm },
   { path: 'diaria/editar/:id', component: DailyForm },
+  { path: 'servicos', component: ServicesProvidedList },
+  { path: 'servicos/novo', component: ServicesProvidedForm },
 ];

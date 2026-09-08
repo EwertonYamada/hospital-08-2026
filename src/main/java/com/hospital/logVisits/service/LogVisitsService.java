@@ -23,15 +23,23 @@ public class LogVisitsService {
         this.admissionService = admissionService;
     }
 
-    public LogVisitsResponseDTO create(LogVisitsRequestDTO dto) {
-        Admission admission = admissionService.getById(dto.getAdmissionId());
+    public void validateAdmissionStatus(Admission admission) {
         if (admission.getStatus() != AdmissionStatus.ACTIVE) {
             throw new RuntimeException("Internação esta inativa");
         }
+    }
 
-        if (logVisitsRepository.existsByAdmission_IdAndDateTimeOutIsNull(dto.getAdmissionId())) {
+    public void validateAdmissionHasNoOpenVisit(Long admissionId) {
+        if (logVisitsRepository.existsByAdmission_IdAndDateTimeOutIsNull(admissionId)) {
             throw new RuntimeException("Já existe um visitante nessa internação no momento");
         }
+    }
+
+    public LogVisitsResponseDTO create(LogVisitsRequestDTO dto) {
+        Admission admission = admissionService.getById(dto.getAdmissionId());
+
+        validateAdmissionStatus(admission);
+        validateAdmissionHasNoOpenVisit(admission.getId());
 
         LogVisits logVisits = new LogVisits();
         logVisits.setName(dto.getName());
@@ -43,10 +51,13 @@ public class LogVisitsService {
         return toResponseDTO(salvo);
     }
 
-    public LogVisitsResponseDTO findById(Long id) {
-        LogVisits logVisits = logVisitsRepository.findById(id)
+    public LogVisits findById(Long id) {
+        return logVisitsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Visita não existe"));
-        return toResponseDTO(logVisits);
+    }
+
+    public LogVisitsResponseDTO getLogVisitDTO(Long id) {
+        return this.toResponseDTO(this.findById(id));
     }
 
     public List<LogVisitsResponseDTO> findAll() {

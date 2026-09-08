@@ -6,6 +6,8 @@ import com.hospital.hospital.service.HospitalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/hospital")
 public class HospitalController {
@@ -24,6 +26,11 @@ public class HospitalController {
     @GetMapping("/{id}")
     public ResponseEntity<Hospital> getById(@PathVariable Long id) {
         return ResponseEntity.ok(this.hospitalService.getById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Hospital>> findAll() {
+        return ResponseEntity.ok(this.hospitalService.findAll());
     }
 
     @PutMapping("/{id}")

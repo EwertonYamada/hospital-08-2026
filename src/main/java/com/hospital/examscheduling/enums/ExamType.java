@@ -1,4 +1,4 @@
-package com.hospital.exam.enums;
+package com.hospital.examscheduling.enums;
 
 public enum ExamType {
     LABORATORIAL,

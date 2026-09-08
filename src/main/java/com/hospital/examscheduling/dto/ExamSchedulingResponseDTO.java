@@ -1,8 +1,7 @@
-package com.hospital.exam.dto;
+package com.hospital.examscheduling.dto;
 
-import com.hospital.admission.model.Admission;
-import com.hospital.exam.enums.ExamStatus;
-import com.hospital.exam.enums.ExamType;
+import com.hospital.examscheduling.enums.ExamStatus;
+import com.hospital.examscheduling.enums.ExamType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExamResponseDTO {
+public class ExamSchedulingResponseDTO {
 
     private Long id;
     private LocalDateTime date;

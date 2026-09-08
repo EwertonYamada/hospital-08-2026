@@ -1,45 +1,28 @@
 package com.hospital.exam.model;
 
-import com.hospital.admission.model.Admission;
-import com.hospital.doctor.model.Doctor;
-import com.hospital.exam.enums.ExamStatus;
-import com.hospital.exam.enums.ExamType;
+import com.hospital.examscheduling.enums.ExamType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "exam")
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
 public class Exam {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private LocalDateTime date;
-
-    @Column(nullable = false)
-    private String nameExam;
+    @Column(name = "name")
+    private String name;
 
     @Enumerated(EnumType.STRING)
-    private ExamType examType;
+    private ExamType type;
 
-    @Enumerated(EnumType.STRING)
-    private ExamStatus examStatus;
-
-    @ManyToOne
-    @JoinColumn(name = "admission_id", nullable = false)
-    private Admission admission;
-
-    @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
-
+    @Column(name = "value")
+    private BigDecimal value;
 }

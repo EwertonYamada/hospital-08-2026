@@ -1,20 +1,19 @@
-package com.hospital.exam.dto;
+package com.hospital.examscheduling.dto;
 
-import com.hospital.admission.model.Admission;
-import com.hospital.exam.enums.ExamType;
+import com.hospital.examscheduling.enums.ExamType;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExamRequestDTO {
+public class ExamSchedulingUpdateRequestDTO {
 
     @NotNull(message = "Data do exame é obrigatório")
     @Future(message = "Data do exame deve ser no futuro")
@@ -28,8 +27,4 @@ public class ExamRequestDTO {
 
     @NotNull(message = "Internação é obrigatória")
     private Long admissionId;
-
-    @NotNull(message = "Médico é obrigatório")
-    private Long doctorId;
-
 }

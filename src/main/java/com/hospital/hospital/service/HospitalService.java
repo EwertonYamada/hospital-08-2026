@@ -9,6 +9,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class HospitalService {
 
@@ -26,6 +28,10 @@ public class HospitalService {
         Hospital hospital = new Hospital(hospitalRequest.name(), hospitalRequest.phoneNumber(), hospitalRequest.cnpj());
         this.buildWardService.buildWards(hospital, hospitalRequest.specialties());
         return this.hospitalRepository.save(hospital);
+    }
+
+    public List<Hospital> findAll() {
+        return hospitalRepository.findAll();
     }
 
     public void validateExistingHospital(String cnpj) {

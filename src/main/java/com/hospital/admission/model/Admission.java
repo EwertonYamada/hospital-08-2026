@@ -2,9 +2,8 @@ package com.hospital.admission.model;
 
 import com.hospital.admission.enums.AdmissionStatus;
 import com.hospital.bed.model.Bed;
-import com.hospital.admission.enums.EventType;
 import com.hospital.doctor.model.Doctor;
-import com.hospital.exam.model.Exam;
+import com.hospital.examscheduling.model.ExamScheduling;
 import com.hospital.patient.model.Patient;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -32,7 +31,7 @@ public class Admission {
     private Patient patient;
 
     @OneToMany(mappedBy = "admission")
-    private List<Exam> exams = new ArrayList<>();
+    private List<ExamScheduling> examSchedulings = new ArrayList<>();
 
     @Column(name = "admitted_at")
     private Date admittedAt;

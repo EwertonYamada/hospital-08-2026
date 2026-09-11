@@ -5,6 +5,7 @@ import com.hospital.bed.model.Bed;
 import com.hospital.admission.enums.EventType;
 import com.hospital.logVisits.model.LogVisits;
 import com.hospital.doctor.model.Doctor;
+import com.hospital.exam.model.Exam;
 import com.hospital.patient.model.Patient;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -31,11 +32,22 @@ public class Admission {
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
+    @OneToMany(mappedBy = "admission")
+    private List<Exam> exams = new ArrayList<>();
+
     @Column(name = "admitted_at")
     private Date admittedAt;
 
     @Column(name = "discharged_at")
     private Date dischargedAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "admission_doctor",
+            joinColumns = @JoinColumn(name = "admission_id"),
+            inverseJoinColumns = @JoinColumn(name = "doctor_id")
+    )
+    private List<Doctor> doctors = new ArrayList<>();
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -43,6 +55,7 @@ public class Admission {
 
     @OneToMany(mappedBy = "admission")
     private List<LogVisits> logVisits;
+  
     @ManyToMany
     @JoinTable(name = "admission_doctors", joinColumns = @JoinColumn(name = "admission_id"), inverseJoinColumns = @JoinColumn(name = "doctor_id"))
     private List<Doctor> doctors = new ArrayList<>();

@@ -23,12 +23,6 @@ public class LogVisitsService {
         this.admissionService = admissionService;
     }
 
-    public void validateAdmissionStatus(Admission admission) {
-        if (admission.getStatus() != AdmissionStatus.ACTIVE) {
-            throw new RuntimeException("Internação esta inativa");
-        }
-    }
-
     public void validateAdmissionHasNoOpenVisit(Long admissionId) {
         if (logVisitsRepository.existsByAdmission_IdAndDateTimeOutIsNull(admissionId)) {
             throw new RuntimeException("Já existe um visitante nessa internação no momento");
@@ -38,7 +32,7 @@ public class LogVisitsService {
     public LogVisitsResponseDTO create(LogVisitsRequestDTO dto) {
         Admission admission = admissionService.getById(dto.getAdmissionId());
 
-        validateAdmissionStatus(admission);
+        admissionService.validateAdmissionStatus(admission);
         validateAdmissionHasNoOpenVisit(admission.getId());
 
         LogVisits logVisits = new LogVisits();

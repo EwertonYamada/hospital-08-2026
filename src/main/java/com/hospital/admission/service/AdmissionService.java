@@ -1,16 +1,18 @@
 package com.hospital.admission.service;
 
+import com.hospital.admission.dto.AdmissionRequest;
+import com.hospital.admission.dto.BedTransferRequest;
 import com.hospital.admission.enums.AdmissionStatus;
+import com.hospital.admission.model.Admission;
+import com.hospital.admission.repository.AdmissionRepository;
 import com.hospital.bed.enums.BedStatus;
 import com.hospital.bed.model.Bed;
 import com.hospital.bed.service.BedService;
-import com.hospital.admission.dto.AdmissionRequest;
-import com.hospital.admission.model.Admission;
-import com.hospital.admission.repository.AdmissionRepository;
 import com.hospital.doctor.model.Doctor;
 import com.hospital.doctor.service.DoctorService;
 import com.hospital.patient.model.Patient;
 import com.hospital.patient.service.PatientService;
+import com.hospital.ward.enums.Specialty;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,6 +91,12 @@ public class AdmissionService {
             throw new RuntimeException("The patient with id " +admission.getPatient().getId() + " has already been discharged.");
     }
 
+    public void validateAdmissionIsActive(AdmissionStatus status) {
+        if (status != AdmissionStatus.ACTIVE) {
+            throw new RuntimeException("Paciente não está hospitalizado");
+        }
+    }
+
     public Admission vincularMedico(Long admissionId, Long medicoId) {
         Admission admission = this.getById(admissionId);
         if (!admission.getStatus().equals(AdmissionStatus.ACTIVE)) {
@@ -101,4 +109,59 @@ public class AdmissionService {
         }
         return  admission;
     }
+
+    @Transactional
+    public Admission transferirLeito(Long admissionId, BedTransferRequest request) {
+        Admission oldAdmission = this.getById(admissionId);
+
+        this.validateAdmissionIsActive(oldAdmission.getStatus());
+
+        Bed newBed = this.bedService.getAvailableBedById(request.newBedId());
+
+        Doctor doctor = this.resolveDoctorForTransfer(oldAdmission, newBed, request.doctorId());
+        this.finalizarInternacaoAntiga(oldAdmission);
+
+        Admission newAdmission = this.criarNovaInternacaoTransferida(newBed, oldAdmission, doctor);
+        return newAdmission;
+    }
+
+    public void validateDoctorIsResponsibleForAdmission(Admission admission, Doctor doctor) {
+        if (!admission.getDoctors().contains(doctor)) {
+            throw new RuntimeException("O médico informado não é responsável por essa internação");
+        }
+    }
+
+    private Doctor resolveDoctorForTransfer(Admission oldAdmission, Bed newBed, Long doctorId) {
+        Specialty oldSpecialty = oldAdmission.getBed().getRoom().getWard().getSpecialty();
+        Specialty newSpecialty = newBed.getRoom().getWard().getSpecialty();
+        Doctor doctor = null;
+        if (!oldSpecialty.equals(newSpecialty)) {
+            if (doctorId == null) {
+                throw new RuntimeException("Medico obrigatorio para trocar de especialidade");
+            }
+            doctor = this.doctorService.getById(doctorId);
+            if (!doctor.getSpecialty().equals(newSpecialty)) {
+                throw new RuntimeException("Medico nao e da especialidade da nova ala");
+            }
+        }
+        return doctor;
+    }
+
+    private void finalizarInternacaoAntiga(Admission oldAdmission) {
+        this.updateBed(oldAdmission.getBed(), BedStatus.IN_PREPARATION);
+        oldAdmission.setDischargedAt(new Date());
+        oldAdmission.setStatus(AdmissionStatus.INACTIVE);
+        this.admissionRepository.save(oldAdmission);
+    }
+
+    private Admission criarNovaInternacaoTransferida(Bed newBed, Admission oldAdmission, Doctor doctor) {
+        Admission newAdmission = new Admission(newBed, oldAdmission.getPatient());
+        if (doctor != null) {
+            newAdmission.getDoctors().add(doctor);
+        }
+        this.admissionRepository.save(newAdmission);
+        this.updateBed(newBed, BedStatus.OCCUPIED);
+        return newAdmission;
+    }
 }
+

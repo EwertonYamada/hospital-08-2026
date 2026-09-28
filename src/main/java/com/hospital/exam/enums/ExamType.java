@@ -1,0 +1,14 @@
+package com.hospital.exam.enums;
+
+public enum ExamType {
+    LABORATORIAL,
+    IMAGEM,
+    RAIO_X,
+    ULTRASSONOGRAFIA,
+    ELETROCARDIOGRAMA,
+    ESPIROMETRIA,
+    ENDOSCOPIA,
+    CISTOSCOPIA,
+    PREDISPOSICAO_GENETICA,
+    PAINEIS_GENETICOS
+}

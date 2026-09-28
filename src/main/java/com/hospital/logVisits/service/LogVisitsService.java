@@ -62,8 +62,7 @@ public class LogVisitsService {
     }
 
     public  LogVisitsResponseDTO update(Long id, LogVisitsRequestDTO dto) {
-        LogVisits logVisits = logVisitsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Visita não existe"));
+        LogVisits logVisits = findById(id);
 
         logVisits.setName(dto.getName());
         logVisits.setDocument(dto.getDocument());
@@ -74,14 +73,14 @@ public class LogVisitsService {
     }
 
     public void delete(Long id) {
-        logVisitsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Visita não existe"));
+        if (!logVisitsRepository.existsById(id)) {
+            throw new RuntimeException("Visita não existe");
+        }
         logVisitsRepository.deleteById(id);
     }
 
     public LogVisitsResponseDTO checkout(Long id) {
-        LogVisits logVisits = logVisitsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Visita não existe"));
+        LogVisits logVisits = findById(id);
 
         if (logVisits.getDateTimeOut() != null) {
             throw new RuntimeException("Visita já foi encerrada");

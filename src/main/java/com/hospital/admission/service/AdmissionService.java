@@ -9,7 +9,7 @@ import com.hospital.bed.enums.BedStatus;
 import com.hospital.bed.model.Bed;
 import com.hospital.bed.service.BedService;
 import com.hospital.doctor.model.Doctor;
-import com.hospital.doctor.service.DoctorService;
+import com.hospital.doctor.repository.DoctorRepository;
 import com.hospital.patient.model.Patient;
 import com.hospital.patient.service.PatientService;
 import com.hospital.ward.enums.Specialty;
@@ -26,17 +26,18 @@ public class AdmissionService {
     private final AdmissionRepository admissionRepository;
     private final PatientService patientService;
     private final BedService bedService;
-    private final DoctorService doctorService;
+    private final DoctorRepository doctorRepository;
 
     public AdmissionService(
             AdmissionRepository admissionRepository,
             PatientService patientService,
-            BedService bedService, DoctorService doctorService
+            BedService bedService,
+            DoctorRepository doctorRepository
     ) {
         this.admissionRepository = admissionRepository;
         this.patientService = patientService;
         this.bedService = bedService;
-        this.doctorService = doctorService;
+        this.doctorRepository = doctorRepository;
     }
 
     @Transactional
@@ -69,7 +70,6 @@ public class AdmissionService {
                 new EntityNotFoundException("Admission with id " + admissionId + " not found"));
     }
 
-
     public Admission discharge(Long admissionId) {
         Admission admission = this.getById(admissionId);
         this.validateAdmissionBeforeDischarge(admission);
@@ -83,7 +83,7 @@ public class AdmissionService {
 
     private void validateAdmissionBeforeDischarge(Admission admission) {
         if (Objects.nonNull(admission.getDischargedAt()) || AdmissionStatus.INACTIVE.equals(admission.getStatus()))
-            throw new RuntimeException("The patient with id " +admission.getPatient().getId() + " has already been discharged.");
+            throw new RuntimeException("The patient with id " + admission.getPatient().getId() + " has already been discharged.");
     }
 
     public void validateAdmissionIsActive(AdmissionStatus status) {
@@ -97,18 +97,17 @@ public class AdmissionService {
         if (!admission.getStatus().equals(AdmissionStatus.ACTIVE)) {
             throw new RuntimeException("Internacao inativa");
         }
-        Doctor doctor = this.doctorService.getById(medicoId);
+        Doctor doctor = this.getDoctorById(medicoId);
         if (!admission.getDoctors().contains(doctor)) {
             admission.getDoctors().add(doctor);
             this.admissionRepository.save(admission);
         }
-        return  admission;
+        return admission;
     }
 
     public boolean existsAdmissionByDoctorId(Long doctorId) {
         return admissionRepository.existsByDoctors_Id(doctorId);
     }
-}
 
     @Transactional
     public Admission transferirLeito(Long admissionId, BedTransferRequest request) {
@@ -121,8 +120,7 @@ public class AdmissionService {
         Doctor doctor = this.resolveDoctorForTransfer(oldAdmission, newBed, request.doctorId());
         this.finalizarInternacaoAntiga(oldAdmission);
 
-        Admission newAdmission = this.criarNovaInternacaoTransferida(newBed, oldAdmission, doctor);
-        return newAdmission;
+        return this.criarNovaInternacaoTransferida(newBed, oldAdmission, doctor);
     }
 
     public void validateDoctorIsResponsibleForAdmission(Admission admission, Doctor doctor) {
@@ -139,12 +137,17 @@ public class AdmissionService {
             if (doctorId == null) {
                 throw new RuntimeException("Medico obrigatorio para trocar de especialidade");
             }
-            doctor = this.doctorService.getById(doctorId);
+            doctor = this.getDoctorById(doctorId);
             if (!doctor.getSpecialty().equals(newSpecialty)) {
                 throw new RuntimeException("Medico nao e da especialidade da nova ala");
             }
         }
         return doctor;
+    }
+
+    private Doctor getDoctorById(Long doctorId) {
+        return this.doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException("Medico com o Id " + doctorId + " Nao encontrado"));
     }
 
     private void finalizarInternacaoAntiga(Admission oldAdmission) {
@@ -164,4 +167,3 @@ public class AdmissionService {
         return newAdmission;
     }
 }
-

@@ -46,11 +46,16 @@ public class DoctorService {
         }
     }
 
+    private void validations(Long id) {
+        if (admissionService.existsAdmissionByDoctorId(id)) {
+            throw new RuntimeException("Não é possível desativar: médico já esteve vinculado a uma internação");
+        }
+    }
+
     public Doctor deactivateDoctor(Long id) {
         Doctor doctor = getById(id);
-        admissionService.validateDoctorHasNoAdmissionLinked(id);
+        validations(id);
         doctor.setActive(false);
-        doctorRepository.save(doctor);
         return doctorRepository.save(doctor);
     }
 

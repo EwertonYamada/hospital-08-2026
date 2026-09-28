@@ -24,7 +24,7 @@ public class AdmissionService {
     private final AdmissionRepository admissionRepository;
     private final PatientService patientService;
     private final BedService bedService;
-    private  final DoctorService doctorService;
+    private final DoctorService doctorService;
 
     public AdmissionService(
             AdmissionRepository admissionRepository,
@@ -97,9 +97,7 @@ public class AdmissionService {
         return  admission;
     }
 
-    public void validateDoctorHasNoAdmissionLinked(Long doctorId) {
-        if (admissionRepository.existsByDoctors_Id(doctorId)) {
-            throw new RuntimeException("Não é possível desativar: médico já esteve vinculado a uma internação");
-        }
+    public boolean existsAdmissionByDoctorId(Long doctorId) {
+        return admissionRepository.existsByDoctors_Id(doctorId);
     }
 }

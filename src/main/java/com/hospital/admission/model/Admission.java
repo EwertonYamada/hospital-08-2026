@@ -55,10 +55,6 @@ public class Admission {
 
     @OneToMany(mappedBy = "admission")
     private List<LogVisits> logVisits;
-  
-    @ManyToMany
-    @JoinTable(name = "admission_doctors", joinColumns = @JoinColumn(name = "admission_id"), inverseJoinColumns = @JoinColumn(name = "doctor_id"))
-    private List<Doctor> doctors = new ArrayList<>();
 
     public Admission(Bed bed, Patient patient) {
         this.bed = bed;

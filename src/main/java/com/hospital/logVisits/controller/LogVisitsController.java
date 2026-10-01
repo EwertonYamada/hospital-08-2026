@@ -2,7 +2,9 @@ package com.hospital.logVisits.controller;
 
 import com.hospital.logVisits.dto.LogVisitsRequestDTO;
 import com.hospital.logVisits.dto.LogVisitsResponseDTO;
+import com.hospital.logVisits.model.LogVisits;
 import com.hospital.logVisits.service.LogVisitsService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +28,9 @@ public class LogVisitsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LogVisitsResponseDTO> findById(@PathVariable Long id) {
-        LogVisitsResponseDTO logVisitsResponseDTO = logVisitsService.findById(id);
-        return ResponseEntity.ok(logVisitsResponseDTO);
+    public ResponseEntity<LogVisits> findById(@PathVariable Long id) {
+        LogVisits visits = logVisitsService.findById(id);
+        return ResponseEntity.ok(visits);
     }
 
     @GetMapping

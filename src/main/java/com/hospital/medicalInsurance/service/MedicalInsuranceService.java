@@ -20,10 +20,14 @@ public class MedicalInsuranceService {
         this.patientService = patientService;
     }
 
-    public MedicalInsuranceResponseDTO create(MedicalInsuranceRequestDTO dto) {
+    private void validateMedicalInsuranceExists(MedicalInsuranceRequestDTO dto) {
         if (medicalInsuranceRepository.existsByType(dto.getType())) {
             throw new RuntimeException("Já existe um convênio cadastrado desse tipo");
         }
+    }
+
+    public MedicalInsuranceResponseDTO create(MedicalInsuranceRequestDTO dto) {
+        validateMedicalInsuranceExists(dto);
 
         MedicalInsurance medicalInsurance = new MedicalInsurance();
         medicalInsurance.setType(dto.getType());
@@ -34,8 +38,7 @@ public class MedicalInsuranceService {
     }
 
     public MedicalInsuranceResponseDTO findById(Long id) {
-        MedicalInsurance medicalInsurance = medicalInsuranceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Convênio não existe"));
+        MedicalInsurance medicalInsurance = getById(id);
         return toResponseDTO(medicalInsurance);
     }
 
@@ -52,10 +55,9 @@ public class MedicalInsuranceService {
     }
 
     public MedicalInsuranceResponseDTO update(Long id, MedicalInsuranceRequestDTO dto) {
-        MedicalInsurance medicalInsurance = medicalInsuranceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Convênio não existe"));
+        MedicalInsurance medicalInsurance = getById(id);
 
-        if (medicalInsuranceRepository.existsByTypeAndIdNot(id, dto.getType())) {
+        if (medicalInsuranceRepository.existsByTypeAndIdNot(dto.getType(), id)) {
             throw new RuntimeException("Já existe um convênio cadastrado desse tipo");
         }
 
@@ -67,8 +69,7 @@ public class MedicalInsuranceService {
     }
 
     public void delete(Long id) {
-        medicalInsuranceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Convênio não existe"));
+        getById(id);
 
         if (patientService.existsPatientWithMedicalInsurance(id)) {
             throw new RuntimeException("Impossivel de Deletar, existe Pacientes vinculados a este Convênio");

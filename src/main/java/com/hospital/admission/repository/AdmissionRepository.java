@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface AdmissionRepository extends JpaRepository<Admission, Long> {
+    boolean existsByDoctors_Id(Long doctorId);
     List<Admission> findByStatus(AdmissionStatus status);
 }

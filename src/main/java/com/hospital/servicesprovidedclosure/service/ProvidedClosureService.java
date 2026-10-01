@@ -48,7 +48,7 @@ public class ProvidedClosureService {
             throw new RuntimeException("Paciente nao possui convenio");
         }
 
-        BigDecimal coverageRate = BigDecimal.valueOf(medicalInsurance.getCoverageRate());
+        BigDecimal coverageRate = medicalInsurance.getCoverageRate();
 
         List<ServicesProvided> despesas = servicesProvidedRepository.findByAdmission_Id(admissionId);
 

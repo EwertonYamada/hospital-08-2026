@@ -69,6 +69,11 @@ public class AdmissionService {
                 new EntityNotFoundException("Admission with id " + admissionId + " not found"));
     }
 
+    public void validateAdmissionStatus(Admission admission) {
+        if (admission.getStatus() != AdmissionStatus.ACTIVE) {
+            throw new RuntimeException("Internação esta inativa");
+        }
+    }
 
     public Admission discharge(Long admissionId) {
         Admission admission = this.getById(admissionId);

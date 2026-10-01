@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface AdmissionRepository extends JpaRepository<Admission, Long> {
     List<Admission> findByStatus(AdmissionStatus status);
+    boolean existsByDoctors_Id(Long doctorId);
 }

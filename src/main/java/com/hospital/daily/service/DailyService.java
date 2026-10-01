@@ -20,7 +20,7 @@ public class DailyService {
     public void validarDuplicidade(BedType bedType, Specialty specialty) {
 
         if (dailyRepository.existsByTypeAndSpecialty(bedType, specialty)) {
-            throw new AlreadyExistingEntityException("duplicado");
+            throw new AlreadyExistingEntityException("Já existe uma diária cadastrada para o tipo " + bedType + " e especialidade " + specialty);
         }
     }
 
@@ -36,11 +36,13 @@ public class DailyService {
     }
 
     public Daily getById(Long id) {
-        return dailyRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("id nao encontrado"));
+        return dailyRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Diaria nao encontrda"));
     }
 
     public Daily consultar(BedType type, Specialty specialty) {
-        return dailyRepository.findByTypeAndSpecialty(type, specialty).orElseThrow(() -> new EntityNotFoundException("nao foi possivel consultar"));
+        return dailyRepository.findByTypeAndSpecialty(type, specialty)
+                .orElseThrow(() -> new EntityNotFoundException("Diaria nao encontrada para o tipo " + type + " e especialidade " + specialty));
     }
 
     public Daily atualizar(Long id, DailyRequest dailyRequest) {

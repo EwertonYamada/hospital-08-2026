@@ -21,4 +21,7 @@ public class Doctor {
 
     @Enumerated(EnumType.STRING)
     private Specialty specialty;
+
+    @Column(nullable = false)
+    private boolean active = true;
 }

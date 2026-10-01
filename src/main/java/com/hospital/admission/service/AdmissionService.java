@@ -1,16 +1,18 @@
 package com.hospital.admission.service;
 
+import com.hospital.admission.dto.AdmissionRequest;
+import com.hospital.admission.dto.BedTransferRequest;
 import com.hospital.admission.enums.AdmissionStatus;
+import com.hospital.admission.model.Admission;
+import com.hospital.admission.repository.AdmissionRepository;
 import com.hospital.bed.enums.BedStatus;
 import com.hospital.bed.model.Bed;
 import com.hospital.bed.service.BedService;
-import com.hospital.admission.dto.AdmissionRequest;
-import com.hospital.admission.model.Admission;
-import com.hospital.admission.repository.AdmissionRepository;
 import com.hospital.doctor.model.Doctor;
-import com.hospital.doctor.service.DoctorService;
+import com.hospital.doctor.repository.DoctorRepository;
 import com.hospital.patient.model.Patient;
 import com.hospital.patient.service.PatientService;
+import com.hospital.ward.enums.Specialty;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,17 +27,18 @@ public class AdmissionService {
     private final AdmissionRepository admissionRepository;
     private final PatientService patientService;
     private final BedService bedService;
-    private  final DoctorService doctorService;
+    private final DoctorRepository doctorRepository;
 
     public AdmissionService(
             AdmissionRepository admissionRepository,
             PatientService patientService,
-            BedService bedService, DoctorService doctorService
+            BedService bedService,
+            DoctorRepository doctorRepository
     ) {
         this.admissionRepository = admissionRepository;
         this.patientService = patientService;
         this.bedService = bedService;
-        this.doctorService = doctorService;
+        this.doctorRepository = doctorRepository;
     }
 
     @Transactional
@@ -68,6 +71,11 @@ public class AdmissionService {
                 new EntityNotFoundException("Admission with id " + admissionId + " not found"));
     }
 
+    public void validateAdmissionStatus(Admission admission) {
+        if (admission.getStatus() != AdmissionStatus.ACTIVE) {
+            throw new RuntimeException("Internação esta inativa");
+        }
+    }
 
     public Admission discharge(Long admissionId) {
         Admission admission = this.getById(admissionId);
@@ -82,7 +90,7 @@ public class AdmissionService {
 
     private void validateAdmissionBeforeDischarge(Admission admission) {
         if (Objects.nonNull(admission.getDischargedAt()) || AdmissionStatus.INACTIVE.equals(admission.getStatus()))
-            throw new RuntimeException("The patient with id " +admission.getPatient().getId() + " has already been discharged.");
+            throw new RuntimeException("The patient with id " + admission.getPatient().getId() + " has already been discharged.");
     }
 
     public void validateAdmissionIsActive(AdmissionStatus status) {
@@ -96,12 +104,30 @@ public class AdmissionService {
         if (!admission.getStatus().equals(AdmissionStatus.ACTIVE)) {
             throw new RuntimeException("Internacao inativa");
         }
-        Doctor doctor = this.doctorService.getById(medicoId);
+        Doctor doctor = this.getDoctorById(medicoId);
         if (!admission.getDoctors().contains(doctor)) {
             admission.getDoctors().add(doctor);
             this.admissionRepository.save(admission);
         }
-        return  admission;
+        return admission;
+    }
+
+    public boolean existsAdmissionByDoctorId(Long doctorId) {
+        return admissionRepository.existsByDoctors_Id(doctorId);
+    }
+
+    @Transactional
+    public Admission transferirLeito(Long admissionId, BedTransferRequest request) {
+        Admission oldAdmission = this.getById(admissionId);
+
+        this.validateAdmissionIsActive(oldAdmission.getStatus());
+
+        Bed newBed = this.bedService.getAvailableBedById(request.newBedId());
+
+        Doctor doctor = this.resolveDoctorForTransfer(oldAdmission, newBed, request.doctorId());
+        this.finalizarInternacaoAntiga(oldAdmission);
+
+        return this.criarNovaInternacaoTransferida(newBed, oldAdmission, doctor);
     }
 
     public void validateDoctorIsResponsibleForAdmission(Admission admission, Doctor doctor) {
@@ -112,5 +138,43 @@ public class AdmissionService {
 
     public List<Admission> getAllActiveAdmissions() {
         return admissionRepository.findByStatus(AdmissionStatus.ACTIVE);
+    }
+
+    private Doctor resolveDoctorForTransfer(Admission oldAdmission, Bed newBed, Long doctorId) {
+        Specialty oldSpecialty = oldAdmission.getBed().getRoom().getWard().getSpecialty();
+        Specialty newSpecialty = newBed.getRoom().getWard().getSpecialty();
+        Doctor doctor = null;
+        if (!oldSpecialty.equals(newSpecialty)) {
+            if (doctorId == null) {
+                throw new RuntimeException("Medico obrigatorio para trocar de especialidade");
+            }
+            doctor = this.getDoctorById(doctorId);
+            if (!doctor.getSpecialty().equals(newSpecialty)) {
+                throw new RuntimeException("Medico nao e da especialidade da nova ala");
+            }
+        }
+        return doctor;
+    }
+
+    private Doctor getDoctorById(Long doctorId) {
+        return this.doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException("Medico com o Id " + doctorId + " Nao encontrado"));
+    }
+
+    private void finalizarInternacaoAntiga(Admission oldAdmission) {
+        this.updateBed(oldAdmission.getBed(), BedStatus.IN_PREPARATION);
+        oldAdmission.setDischargedAt(new Date());
+        oldAdmission.setStatus(AdmissionStatus.INACTIVE);
+        this.admissionRepository.save(oldAdmission);
+    }
+
+    private Admission criarNovaInternacaoTransferida(Bed newBed, Admission oldAdmission, Doctor doctor) {
+        Admission newAdmission = new Admission(newBed, oldAdmission.getPatient());
+        if (doctor != null) {
+            newAdmission.getDoctors().add(doctor);
+        }
+        this.admissionRepository.save(newAdmission);
+        this.updateBed(newBed, BedStatus.OCCUPIED);
+        return newAdmission;
     }
 }
